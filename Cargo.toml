@@ -1,0 +1,34 @@
+[package]
+name = "tabtps"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[patch.crates-io]
+pkcs1 = { git = "https://github.com/RustCrypto/formats.git", package = "pkcs1", branch = "master" }
+
+[dependencies]
+# pumpkin            = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin" }
+# pumpkin-api-macros = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin-api-macros" }
+# pumpkin-data       = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin-data" }
+# pumpkin-protocol   = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin-protocol" }
+# pumpkin-registry   = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin-registry" }
+# pumpkin-util       = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin-util" }
+# pumpkin-world      = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin-world" }
+
+pumpkin            = { git = "https://github.com/topi-banana/Pumpkin.git", branch = "packet_tab_list", package = "pumpkin" }
+pumpkin-api-macros = { git = "https://github.com/topi-banana/Pumpkin.git", branch = "packet_tab_list", package = "pumpkin-api-macros" }
+pumpkin-data       = { git = "https://github.com/topi-banana/Pumpkin.git", branch = "packet_tab_list", package = "pumpkin-data" }
+pumpkin-protocol   = { git = "https://github.com/topi-banana/Pumpkin.git", branch = "packet_tab_list", package = "pumpkin-protocol" }
+pumpkin-registry   = { git = "https://github.com/topi-banana/Pumpkin.git", branch = "packet_tab_list", package = "pumpkin-registry" }
+pumpkin-util       = { git = "https://github.com/topi-banana/Pumpkin.git", branch = "packet_tab_list", package = "pumpkin-util" }
+pumpkin-world      = { git = "https://github.com/topi-banana/Pumpkin.git", branch = "packet_tab_list", package = "pumpkin-world" }
+
+async-trait = "0.1"
+tokio = { version = "1.46", features = ["full"] }
+
+env_logger = "0.11"
+log = "0.4"
+
