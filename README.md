@@ -56,8 +56,7 @@ pumpkin-tabtps
 
 * [`pumpkin`](https://github.com/Pumpkin-MC/Pumpkin) (custom branch: `packet_tab_list`)
 * [`tokio`](https://tokio.rs/) for async runtime
-* [`async-trait`](https://docs.rs/async-trait/)
-* [`log`](https://docs.rs/log/) + [`env_logger`](https://docs.rs/env_logger/)
+* [`log`](https://docs.rs/log/)
 
 ## License
 
