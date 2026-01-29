@@ -5,8 +5,8 @@ use pumpkin::{
     plugin::{BoxFuture, EventHandler, player::player_join::PlayerJoinEvent},
     server::Server,
 };
-use pumpkin_data::packet::clientbound::PLAY_TAB_LIST;
-use pumpkin_protocol::packet::Packet;
+use pumpkin_data::packet::{PacketId, clientbound::PLAY_TAB_LIST};
+use pumpkin_protocol::packet::MultiVersionJavaPacket;
 use pumpkin_util::text::{TextComponent, color::NamedColor};
 use serde::Serialize;
 
@@ -16,8 +16,8 @@ struct CTabList {
     footer: TextComponent,
 }
 
-impl Packet for CTabList {
-    const PACKET_ID: i32 = PLAY_TAB_LIST;
+impl MultiVersionJavaPacket for CTabList {
+    const PACKET_ID: PacketId = PLAY_TAB_LIST;
 }
 
 pub struct TabtpsJoinHandler {
@@ -50,11 +50,7 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
                 while !player.client.closed() {
                     let nspts = server.get_tick_times_nanos_copy().await;
                     let avg_mspt = nspts.iter().copied().sum::<i64>() as f64 / 100.0 / 1_000_000.0;
-                    let tps = if avg_mspt > 50.0 {
-                        1000.0 / avg_mspt
-                    } else {
-                        20.0
-                    };
+                    let tps = server.get_tps();
                     let color = match avg_mspt {
                         ..25.0 => NamedColor::Green,
                         ..40.0 => NamedColor::Gold,
