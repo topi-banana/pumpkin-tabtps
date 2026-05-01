@@ -54,7 +54,7 @@ pumpkin-tabtps
 
 ## Dependencies
 
-* [`pumpkin`](https://github.com/Pumpkin-MC/Pumpkin) (custom branch: `packet_tab_list`)
+* [`pumpkin`](https://github.com/Pumpkin-MC/Pumpkin) (`master` branch — `pumpkin`, `pumpkin-data`, `pumpkin-protocol`, `pumpkin-util`)
 * [`tokio`](https://tokio.rs/) for async runtime
 * [`log`](https://docs.rs/log/)
 
