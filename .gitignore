@@ -26,3 +26,6 @@ target
 /plugins
 /world
 /pumpkin
+
+# Claude Code per-user memory / state (project-local)
+.claude/

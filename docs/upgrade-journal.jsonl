@@ -1,0 +1,39 @@
+{"sha":"f93be68caa3969502c13d5d284da59fe1017ed9a","status":"PASS","ts":"2026-05-01T17:46:49+09:00","note":"baseline / phase 0; lockfile preserved"}
+{"sha":"ed318c94c40776f6719ad59a56299b3b9d66056b","status":"PASS","ts":"2026-05-01T18:40:47+09:00"}
+{"sha":"441040105bb8ceb8b118bf84039727e6423046aa","status":"PASS","ts":"2026-05-01T18:44:22+09:00"}
+{"sha":"05688ade9e97edf69cb39e0d325efe466cfc6cdb","status":"PASS","ts":"2026-05-01T18:47:42+09:00"}
+{"sha":"59cfea8b1f9af68fef4b33d03214a818bd4e673c","status":"PASS","ts":"2026-05-01T18:51:08+09:00"}
+{"sha":"8b733b8d3e37bb8d831d12e9abb022b91a441a65","status":"PASS","ts":"2026-05-01T18:54:32+09:00"}
+{"sha":"cccf8dc2b08ff5012f1c191afeeddcac2961b118","status":"PASS","ts":"2026-05-01T18:58:01+09:00"}
+{"sha":"a067531d8eb5c748ae78732c135f365d6bcf3191","status":"PASS","ts":"2026-05-01T19:01:42+09:00"}
+{"sha":"360e138eca1af2e55c085af388ec42cf05a454bd","status":"PASS","ts":"2026-05-01T19:06:00+09:00"}
+{"sha":"2f29fcef8d81e5fbbfd392f736b2f94a32579479","status":"PASS","ts":"2026-05-01T19:09:57+09:00"}
+{"sha":"835262a85a0d7b74aef243f6035253356755f812","status":"PASS","ts":"2026-05-01T19:14:14+09:00"}
+{"sha":"c4d724f2c11ceca5f68939d3434e50dd1814bd3b","status":"PASS","ts":"2026-05-01T19:18:07+09:00"}
+{"sha":"cb6cb149bc227ca2b80406ed40d77940daa85b2a","status":"PASS","ts":"2026-05-01T19:21:48+09:00"}
+{"sha":"eaf53f3d81142544d04cdaf518e4ffda947de5aa","status":"PASS","ts":"2026-05-01T19:25:32+09:00"}
+{"sha":"cd71f161893ed31f85916d5ace4abd2696dd1823","status":"PASS","ts":"2026-05-01T19:28:49+09:00"}
+{"sha":"8e06e5e83a6950eed240c237fe772c7ad765ce01","status":"PASS","ts":"2026-05-01T19:32:07+09:00"}
+{"sha":"2a0d2f1cf357572e43df3fc66db661da95f287eb","status":"PASS","ts":"2026-05-01T19:40:00+09:00","note":"flate2 v1.1.8->1.1.9 lockfile update"}
+{"sha":"6649d80ca743be898c83aedb1a9208ac68a925e4","status":"PASS","ts":"2026-05-01T20:51:47+09:00"}
+{"sha":"5165d16c29280e088d54d1a7838a5861d8433da4","status":"PASS","ts":"2026-05-01T20:56:19+09:00"}
+{"sha":"3c87523112fce8afa534be58a29af784d1ce5b36","status":"PASS","ts":"2026-05-01T21:00:46+09:00"}
+{"sha":"dfbd3ac3c3f785059a52a9de9d9378fd47db738c","status":"PASS","ts":"2026-05-01T21:05:26+09:00"}
+{"sha":"7ae35017f879f31f19e33706e0d4fe2c96e7bbd1","status":"PASS","ts":"2026-05-01T21:09:44+09:00"}
+{"sha":"51f1152403727d298f412229f30676247960cae5","status":"PASS","ts":"2026-05-01T21:14:34+09:00"}
+{"sha":"707d1e9a92730a7cec7ca54e4642ac090e20aa2c","status":"PASS","ts":"2026-05-01T21:19:17+09:00"}
+{"sha":"53803c5e94151d96ed8ab3a68ac9f778f38003d9","status":"PASS","ts":"2026-05-01T21:23:56+09:00"}
+{"sha":"4b887f0369317c72432d5096a479cf860ef114eb","status":"PASS","ts":"2026-05-01T21:28:20+09:00"}
+{"sha":"7e4f2148b8de348ed14758cb94ca0c99f0284ebb","status":"PASS","ts":"2026-05-01T21:32:43+09:00"}
+{"sha":"86aeba7b4c38ee0cd1929ffd13718e80d55d9e2f","status":"PASS","ts":"2026-05-01T21:37:05+09:00"}
+{"sha":"1b7f018fd601bf2051b0de97c5aeaa5b3aadfe3f","status":"PASS","ts":"2026-05-01T21:41:27+09:00"}
+{"sha":"fee9fa3d76e87ca90ab008f7f73335261edcd277","status":"PASS","ts":"2026-05-01T21:45:48+09:00"}
+{"sha":"042e12d0268f0d423f5aa5ce8948c52a63aa080e","status":"PASS","ts":"2026-05-01T21:50:12+09:00"}
+{"sha":"6c7c0a4cc582e8c956ffacb3b8c7405bb900cf14","status":"PASS","ts":"2026-05-01T21:54:33+09:00"}
+{"sha":"fd1b968ae6c17b8cda08caef018836e8a37ec879","status":"PASS","ts":"2026-05-01T22:01:07+09:00"}
+{"sha":"b1f62f3cd9a8a9bde480fb060d5bd767c01a83cb","status":"PASS","ts":"2026-05-01T22:07:55+09:00"}
+{"sha":"3e82875e4fa1a7102587ae3796d8f6fd50123fd3","status":"PASS","ts":"2026-05-01T22:16:32+09:00"}
+{"sha":"d6b4d2e8b2c75044d333d805c3e4193a0ab66f2e","status":"PASS","ts":"2026-05-01T22:20:52+09:00"}
+{"sha":"abe01f301914b814bb83643e902f16125e1e930d","status":"PASS","ts":"2026-05-01T22:29:29+09:00"}
+{"sha":"e45ab613f46c1b43896ed4de90779096d02697d7","status":"SKIP_UPSTREAM_BROKEN","ts":"2026-05-01T22:45:00+09:00","log_excerpt":"    ... which satisfies dependency `rand_core = \"^0.10.0-rc-6\"` (locked to 0.10.0-rc-6) of package `rand v0.10.0-rc.8 (https://github.com/rust-random/rand#a4c9a8e5)`\n    ... which satisfies git dependency `rand` (locked to 0.10.0-rc.8) of package `pumpkin v0.1.0-dev+1.21.11 (https://github.com/Pumpkin-MC/Pumpkin.git?rev=e45ab613f46c1b43896ed4de90779096d02697d7#e45ab613)`\n    ... which satisfies git dependency `pumpkin` of package `tabtps v0.1.0 (/home/topi/Projects/pumpkin-tabtps)`\n\nfailed to select a version for `rand_core` which could resolve this conflict\n"}
+{"sha":"dcda0d6f5674c7b81c7f5bed522eef6fb626a852","status":"FAIL","ts":"2026-05-01T22:35:59+09:00","log":"build.log"}
