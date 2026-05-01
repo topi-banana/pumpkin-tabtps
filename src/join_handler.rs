@@ -5,20 +5,8 @@ use pumpkin::{
     plugin::{BoxFuture, EventHandler, player::player_join::PlayerJoinEvent},
     server::Server,
 };
-use pumpkin_data::packet::{PacketId, clientbound::PLAY_TAB_LIST};
-use pumpkin_protocol::packet::MultiVersionJavaPacket;
+use pumpkin_protocol::java::client::play::CTabList;
 use pumpkin_util::text::{TextComponent, color::NamedColor};
-use serde::Serialize;
-
-#[derive(Serialize)]
-struct CTabList {
-    header: TextComponent,
-    footer: TextComponent,
-}
-
-impl MultiVersionJavaPacket for CTabList {
-    const PACKET_ID: PacketId = PLAY_TAB_LIST;
-}
 
 pub struct TabtpsJoinHandler {
     runtime: tokio::runtime::Runtime,
@@ -60,14 +48,12 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
                     let tps_text = gen_text_component("TPS", format!("{tps:.2}"), color);
                     let mspt_text = gen_text_component("MSPT", format!("{avg_mspt:.2}"), color);
 
+                    let footer = tps_text
+                        .add_child(TextComponent::text(" "))
+                        .add_child(mspt_text);
                     player
                         .client
-                        .enqueue_packet(&CTabList {
-                            header: TextComponent::text(""),
-                            footer: tps_text
-                                .add_child(TextComponent::text(" "))
-                                .add_child(mspt_text),
-                        })
+                        .enqueue_packet(&CTabList::new(&TextComponent::text(""), &footer))
                         .await;
 
                     tokio::time::sleep(Duration::from_secs(1)).await;
