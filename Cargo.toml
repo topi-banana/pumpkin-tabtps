@@ -7,10 +7,10 @@ edition = "2024"
 crate-type = ["cdylib"]
 
 [dependencies]
-pumpkin            = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "dcda0d6f5674c7b81c7f5bed522eef6fb626a852", package = "pumpkin" }
-pumpkin-data       = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "dcda0d6f5674c7b81c7f5bed522eef6fb626a852", package = "pumpkin-data" }
-pumpkin-protocol   = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "dcda0d6f5674c7b81c7f5bed522eef6fb626a852", package = "pumpkin-protocol" }
-pumpkin-util       = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "dcda0d6f5674c7b81c7f5bed522eef6fb626a852", package = "pumpkin-util" }
+pumpkin            = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "cbdc919affd86a804e9332565f715f4debb3f612", package = "pumpkin" }
+pumpkin-data       = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "cbdc919affd86a804e9332565f715f4debb3f612", package = "pumpkin-data" }
+pumpkin-protocol   = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "cbdc919affd86a804e9332565f715f4debb3f612", package = "pumpkin-protocol" }
+pumpkin-util       = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "cbdc919affd86a804e9332565f715f4debb3f612", package = "pumpkin-util" }
 
 serde = { version = "1.0", features = ["derive"] }
 
