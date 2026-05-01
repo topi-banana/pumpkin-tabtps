@@ -55,7 +55,7 @@ HEAD 直接調査で `pumpkin/src/plugin/loader/native.rs` と `pumpkin/src/plug
 | Task | 内容 | DoD | Depends | Status |
 |------|------|-----|---------|--------|
 | 2.1 | `Cargo.toml` の dep を最終 SHA → `branch = "master"` に戻す | `python3 scripts/_pin_rev.py Cargo.toml branch master` 実行後 `cargo build` 成功 | Phase 1 | cc:完了 [60d0286] |
-| 2.2 | `README.md` / `CLAUDE.md` を HEAD の native API 名差分のみ反映 (cdylib・`.so/.dll/.dylib`・`cargo build --release` の言及は維持) | 手動レビュー、grep で WASM 移行関連の表現 (`wasm32-wasip2` / `wit-bindgen` 等) が無いこと | 2.1 | cc:TODO |
+| 2.2 | `README.md` / `CLAUDE.md` を HEAD の native API 名差分のみ反映 (cdylib・`.so/.dll/.dylib`・`cargo build --release` の言及は維持) | 手動レビュー、grep で WASM 移行関連の表現 (`wasm32-wasip2` / `wit-bindgen` 等) が無いこと | 2.1 | cc:完了 [6c9ab6d] |
 | 2.3 | journal に SKIP/FAIL が残っていないか最終確認 | `jq 'select(.status != "PASS")' docs/upgrade-journal.jsonl` の出力が空 | 2.1 | cc:TODO |
 | 2.4 | retrospective を Plans.md 末尾に追記 (WASM cutover 撤回の判断根拠、PR #1675 周辺の native 破壊と回避策、Phase 1 walk の gotcha 一覧) | 手動レビュー | 2.3 | cc:TODO |
 
