@@ -10,7 +10,7 @@ pub struct TabtpsPlugin;
 impl Plugin for TabtpsPlugin {
     fn on_load(&mut self, server: Arc<Context>) -> PluginFuture<'_, Result<(), String>> {
         Box::pin(async move {
-            log::info!("Hello, Pumpkin!");
+            tracing::info!("Hello, Pumpkin!");
 
             server
                 .register_event(
