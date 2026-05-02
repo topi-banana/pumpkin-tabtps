@@ -3172,10 +3172,8 @@ name = "tabtps"
 version = "0.1.0"
 dependencies = [
  "pumpkin",
- "pumpkin-data",
  "pumpkin-protocol",
  "pumpkin-util",
- "serde",
  "tokio",
  "tracing",
 ]
