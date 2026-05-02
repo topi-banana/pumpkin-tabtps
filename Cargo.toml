@@ -14,6 +14,6 @@ pumpkin-util       = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch
 
 serde = { version = "1.0", features = ["derive"] }
 
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["rt-multi-thread", "time"] }
 
 tracing = { version = "0.1", features = ["log"] }
