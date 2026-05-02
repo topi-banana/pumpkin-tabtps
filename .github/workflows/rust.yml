@@ -40,3 +40,29 @@ jobs:
           target/release/*.dll
           target/release/*.dylib
         if-no-files-found: 'ignore'
+
+  machete:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install cargo-machete
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-machete
+
+    - name: cargo machete
+      run: cargo machete
+
+  typos:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install typos
+      uses: taiki-e/install-action@v2
+      with:
+        tool: typos-cli
+
+    - name: typos
+      run: typos
