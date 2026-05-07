@@ -27,10 +27,11 @@ Colors:
 ```
 
 pumpkin-tabtps
-├── Cargo.toml       # Rust package manifest
-├── LICENSE          # MIT License
+├── Cargo.toml          # Rust package manifest
+├── LICENSE             # MIT License
 └── src
-    └── lib.rs       # Plugin implementation
+    ├── lib.rs          # Plugin entry point (Plugin trait impl + register_plugin!)
+    └── join_handler.rs # PlayerJoinEvent handler + tab footer update task
 
 ````
 
@@ -43,20 +44,19 @@ pumpkin-tabtps
 
 2. **Deploy**
 
-    Copy the resulting `.so`, `.dll`, or `.dylib` file from `target/release/` to your Pumpkin server's plugin directory.
+    Copy the resulting `.wasm` file from `target/wasm32-wasip2/release/` to your Pumpkin server's plugin directory.
 
 3. **Run Server**
 
     Start your Pumpkin server, and the plugin will:
 
-    * Log `Hello, Pumpkin!` on load
+    * Log `Hello, TabTPS!` on load
     * Start updating the tab footer every second when a player joins
 
 ## Dependencies
 
-* [`pumpkin`](https://github.com/Pumpkin-MC/Pumpkin) (`master` branch — `pumpkin`, `pumpkin-data`, `pumpkin-protocol`, `pumpkin-util`)
-* [`tokio`](https://tokio.rs/) for async runtime
-* [`log`](https://docs.rs/log/)
+* [`pumpkin-plugin-api`](https://github.com/Pumpkin-MC/Pumpkin) (`master` branch) — provides the `Plugin` trait, scheduler, event handlers, and text components
+* [`tracing`](https://docs.rs/tracing/) for structured logging
 
 ## License
 
