@@ -6,14 +6,9 @@ edition = "2024"
 [lib]
 crate-type = ["cdylib"]
 
+[profile.release]
+lto = true
+
 [dependencies]
-pumpkin            = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin" }
-pumpkin-data       = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin-data" }
-pumpkin-protocol   = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin-protocol" }
-pumpkin-util       = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", branch = "master", package = "pumpkin-util" }
-
-serde = { version = "1.0", features = ["derive"] }
-
-tokio = { version = "1", features = ["full"] }
-
-log = "0.4"
+pumpkin-plugin-api = { version = "0.1.0", git = "https://github.com/Pumpkin-MC/Pumpkin", package = "pumpkin-plugin-api" }
+tracing = "0.1"
