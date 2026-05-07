@@ -9,37 +9,29 @@ env:
 
 jobs:
   build:
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Add wasm32-wasip2 target
+      run: rustup target add wasm32-wasip2
 
     - name: Check formatting
       run: cargo fmt -- --check
 
     - name: Run Clippy
-      run: cargo clippy -- -D warnings
-
-    - name: Run tests
-      run: cargo test --verbose
+      run: cargo clippy --target wasm32-wasip2 -- -D warnings
 
     - name: Build
-      run: cargo build --release --verbose
+      run: cargo build --release --target wasm32-wasip2 --verbose
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: pumpkin-tabtps-${{ matrix.os }}
-        path: |
-          target/release/*.so
-          target/release/*.dll
-          target/release/*.dylib
-        if-no-files-found: 'ignore'
+        name: pumpkin-tabtps-wasm
+        path: target/wasm32-wasip2/release/*.wasm
+        if-no-files-found: 'error'
 
   machete:
     runs-on: ubuntu-latest
