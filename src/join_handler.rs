@@ -1,71 +1,67 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::{Arc, Mutex};
 
-use pumpkin::{
-    net::ClientPlatform,
-    plugin::{BoxFuture, EventHandler, player::player_join::PlayerJoinEvent},
-    server::Server,
+use pumpkin_plugin_api::{
+    Server,
+    events::{EventData, EventHandler, PlayerJoinEvent},
+    scheduler,
+    text::{NamedColor, TextComponent},
 };
-use pumpkin_protocol::java::client::play::CTabList;
-use pumpkin_util::text::{TextComponent, color::NamedColor};
 
-pub struct TabtpsJoinHandler {
-    runtime: tokio::runtime::Runtime,
-}
-
-impl TabtpsJoinHandler {
-    pub fn new() -> Self {
-        Self {
-            runtime: tokio::runtime::Runtime::new().unwrap(),
-        }
-    }
-}
+pub struct TabtpsJoinHandler;
 
 impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
-    fn handle<'a>(
-        &'a self,
-        server: &'a Arc<Server>,
-        event: &'a PlayerJoinEvent,
-    ) -> BoxFuture<'a, ()> {
-        Box::pin(async move {
-            let player = Arc::clone(&event.player);
-            let server = Arc::clone(server);
+    fn handle(
+        &self,
+        _server: Server,
+        event: EventData<PlayerJoinEvent>,
+    ) -> EventData<PlayerJoinEvent> {
+        tracing::info!("Player joined: {}", event.player.get_name());
+        let player_id = event.player.get_id();
 
-            let ClientPlatform::Java(_) = player.client else {
-                return;
-            };
+        let task_slot: Arc<Mutex<Option<u32>>> = Arc::new(Mutex::new(None));
+        let task_slot_clone = task_slot.clone();
+        let id = scheduler::schedule_repeating_task(20, 20, move |server| {
+            if let Some(player) = server.get_player_by_uuid(&player_id) {
+                player.set_tab_list_header_footer(TextComponent::text(""), gen_footer(&server));
+            } else if let Some(id) = task_slot_clone.lock().unwrap().take() {
+                tracing::info!("Player gone, cancelling tab task id={id}");
+                scheduler::cancel_task(id);
+            }
+        });
+        *task_slot.lock().unwrap() = Some(id);
+        tracing::info!("Tab task scheduled (id={id})");
 
-            self.runtime.spawn(async move {
-                while !player.client.closed() {
-                    let nspts = server.get_tick_times_nanos_copy().await;
-                    let avg_mspt = nspts.iter().copied().sum::<i64>() as f64 / 100.0 / 1_000_000.0;
-                    let tps = server.get_tps();
-                    let color = match avg_mspt {
-                        ..25.0 => NamedColor::Green,
-                        ..40.0 => NamedColor::Gold,
-                        _ => NamedColor::Red,
-                    };
-
-                    let tps_text = gen_text_component("TPS", format!("{tps:.2}"), color);
-                    let mspt_text = gen_text_component("MSPT", format!("{avg_mspt:.2}"), color);
-
-                    let footer = tps_text
-                        .add_child(TextComponent::text(" "))
-                        .add_child(mspt_text);
-                    player
-                        .client
-                        .enqueue_packet(&CTabList::new(&TextComponent::text(""), &footer))
-                        .await;
-
-                    tokio::time::sleep(Duration::from_secs(1)).await;
-                }
-            });
-        })
+        event
     }
 }
 
-fn gen_text_component(name: &'static str, value: String, color: NamedColor) -> TextComponent {
-    TextComponent::text(name)
-        .color_named(NamedColor::Gray)
-        .add_child(TextComponent::text(": ").color_named(NamedColor::White))
-        .add_child(TextComponent::text(value).color_named(color))
+fn gen_footer(server: &Server) -> TextComponent {
+    let mspt = server.get_mspt();
+    let tps = server.get_tps();
+    let color = match mspt {
+        ..25.0 => NamedColor::Green,
+        ..40.0 => NamedColor::Gold,
+        _ => NamedColor::Red,
+    };
+    let footer = gen_text_component("TPS", &format!("{tps:.2}"), color);
+    footer
+        .add_child(TextComponent::text(" "))
+        .add_child(gen_text_component("MSPT", &format!("{mspt:.2}"), color));
+    footer
+}
+
+fn gen_text_component(name: &'static str, value: &str, color: NamedColor) -> TextComponent {
+    let result = TextComponent::text(name);
+    result.color_named(NamedColor::Gray);
+    result.add_child({
+        let sep_component = TextComponent::text(": ");
+        sep_component.color_named(NamedColor::White);
+        sep_component
+    });
+    result.add_child({
+        let value_component = TextComponent::text(value);
+        value_component.color_named(color);
+        value_component
+    });
+    result
 }
