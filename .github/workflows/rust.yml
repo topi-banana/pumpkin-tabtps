@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Add wasm32-wasip2 target
       run: rustup target add wasm32-wasip2
@@ -27,7 +27,7 @@ jobs:
       run: cargo build --release --target wasm32-wasip2 --verbose
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: pumpkin-tabtps-wasm
         path: target/wasm32-wasip2/release/*.wasm
@@ -36,7 +36,7 @@ jobs:
   machete:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install cargo-machete
       uses: taiki-e/install-action@v2
@@ -49,7 +49,7 @@ jobs:
   typos:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install typos
       uses: taiki-e/install-action@v2
