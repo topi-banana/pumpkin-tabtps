@@ -236,9 +236,10 @@ dependencies = [
 [[package]]
 name = "pumpkin-plugin-api"
 version = "0.1.0"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin#92abb1e44e4fd154222f41cec40d1ee0f7a54fe6"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin#fcaf852a05538a6a97a9b52e31d106323517b6ed"
 dependencies = [
  "postcard",
+ "serde_json",
  "tracing",
  "tracing-serde-structured",
  "wit-bindgen",
