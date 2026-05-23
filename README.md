@@ -17,7 +17,7 @@ the [Roadmap](#roadmap) for what is planned next.
 
 ### Implemented (v0.1.0)
 
-- [x] Tab list **footer** display with live TPS + MSPT
+- [x] Tab list **header + footer** display with live TPS (header) and MSPT (footer)
 - [x] MSPT-based color coding (green ≤ 25, gold ≤ 40, red > 40)
 - [x] 1-second refresh via `scheduler::schedule_repeating_task`
 - [x] Per-player task lifecycle — scheduled on `PlayerJoinEvent`, cancelled when the player disconnects
@@ -38,7 +38,7 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 
 | Category   | Feature                                  | Upstream | pumpkin-tabtps     |
 |------------|------------------------------------------|:--------:|:------------------:|
-| Display    | Tab list (header + footer)               | ✅       | ⚠️ footer only      |
+| Display    | Tab list (header + footer)               | ✅       | ✅                  |
 | Display    | Action bar                               | ✅       | ❌                  |
 | Display    | Boss bar (with progress)                 | ✅       | ❌                  |
 | Module     | TPS (current)                            | ✅       | ✅                  |
@@ -75,7 +75,7 @@ unblock later ones (modular display → config → commands → theming).
 ### Phase 1 — Modular display foundation
 
 - [x] Extract the footer renderer into a `Module` trait (TPS / MSPT first) so additional modules can drop in.
-- [ ] Render the tab list **header** in addition to the footer.
+- [x] Render the tab list **header** in addition to the footer.
 - [ ] **Player Count** module (`server.get_player_count` / `server.get_max_players`).
 - [ ] **Ping** module (`player.get_ping`).
 
