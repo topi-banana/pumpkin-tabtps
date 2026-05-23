@@ -1,4 +1,5 @@
 mod join_handler;
+mod module;
 
 use pumpkin_plugin_api::{Context, Plugin, PluginMetadata, events::EventPriority};
 
