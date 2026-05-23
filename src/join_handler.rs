@@ -3,11 +3,12 @@ use std::sync::{Arc, Mutex};
 use pumpkin_plugin_api::{
     Server,
     events::{EventData, EventHandler, PlayerJoinEvent},
+    player::Player,
     scheduler,
     text::TextComponent,
 };
 
-use crate::module::{Module, MsptModule, PlayerCountModule, TpsModule, compose};
+use crate::module::{Module, MsptModule, PingModule, PlayerCountModule, TpsModule, compose};
 
 pub struct TabtpsJoinHandler;
 
@@ -24,7 +25,10 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
         let task_slot_clone = task_slot.clone();
         let id = scheduler::schedule_repeating_task(20, 20, move |server| {
             if let Some(player) = server.get_player_by_uuid(player_id) {
-                player.set_tab_list_header_footer(render_header(&server), render_footer(&server));
+                player.set_tab_list_header_footer(
+                    render_header(&server, &player),
+                    render_footer(&server, &player),
+                );
             } else if let Some(id) = task_slot_clone.lock().unwrap().take() {
                 tracing::info!("Player gone, cancelling tab task id={id}");
                 scheduler::cancel_task(id);
@@ -37,12 +41,12 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
     }
 }
 
-fn render_header(server: &Server) -> TextComponent {
+fn render_header(server: &Server, player: &Player) -> TextComponent {
     let modules: [&dyn Module; 2] = [&TpsModule, &PlayerCountModule];
-    compose(&modules, server)
+    compose(&modules, server, player)
 }
 
-fn render_footer(server: &Server) -> TextComponent {
-    let modules: [&dyn Module; 1] = [&MsptModule];
-    compose(&modules, server)
+fn render_footer(server: &Server, player: &Player) -> TextComponent {
+    let modules: [&dyn Module; 2] = [&MsptModule, &PingModule];
+    compose(&modules, server, player)
 }
