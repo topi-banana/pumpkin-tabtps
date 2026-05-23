@@ -14,6 +14,7 @@ pub trait Module {
 
 pub struct TpsModule;
 pub struct MsptModule;
+pub struct PlayerCountModule;
 
 /// Render `modules` into a single [`TextComponent`], separating successive
 /// entries with a space. Returns an empty component when `modules` is empty,
@@ -43,6 +44,14 @@ impl Module for MsptModule {
     fn render(&self, server: &Server) -> TextComponent {
         let mspt = server.get_mspt();
         labeled_value("MSPT", &format!("{mspt:.2}"), color_for_mspt(mspt))
+    }
+}
+
+impl Module for PlayerCountModule {
+    fn render(&self, server: &Server) -> TextComponent {
+        let current = server.get_player_count();
+        let max = server.get_max_players();
+        labeled_value("Players", &format!("{current}/{max}"), NamedColor::White)
     }
 }
 

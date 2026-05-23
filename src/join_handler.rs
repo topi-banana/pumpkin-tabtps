@@ -7,7 +7,7 @@ use pumpkin_plugin_api::{
     text::TextComponent,
 };
 
-use crate::module::{Module, MsptModule, TpsModule, compose};
+use crate::module::{Module, MsptModule, PlayerCountModule, TpsModule, compose};
 
 pub struct TabtpsJoinHandler;
 
@@ -38,7 +38,7 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
 }
 
 fn render_header(server: &Server) -> TextComponent {
-    let modules: [&dyn Module; 1] = [&TpsModule];
+    let modules: [&dyn Module; 2] = [&TpsModule, &PlayerCountModule];
     compose(&modules, server)
 }
 
