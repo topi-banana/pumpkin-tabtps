@@ -74,7 +74,7 @@ unblock later ones (modular display → config → commands → theming).
 
 ### Phase 1 — Modular display foundation
 
-- [ ] Extract the footer renderer into a `Module` trait (TPS / MSPT first) so additional modules can drop in.
+- [x] Extract the footer renderer into a `Module` trait (TPS / MSPT first) so additional modules can drop in.
 - [ ] Render the tab list **header** in addition to the footer.
 - [ ] **Player Count** module (`server.get_player_count` / `server.get_max_players`).
 - [ ] **Ping** module (`player.get_ping`).
