@@ -17,7 +17,7 @@ the [Roadmap](#roadmap) for what is planned next.
 
 ### Implemented (v0.1.0)
 
-- [x] Tab list **header + footer** display with live TPS, player count, and MSPT
+- [x] Tab list **header + footer** display with live TPS, player count, MSPT, and per-player ping
 - [x] MSPT-based color coding (green ≤ 25, gold ≤ 40, red > 40)
 - [x] 1-second refresh via `scheduler::schedule_repeating_task`
 - [x] Per-player task lifecycle — scheduled on `PlayerJoinEvent`, cancelled when the player disconnects
@@ -45,7 +45,7 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 | Module     | MSPT (current)                           | ✅       | ✅                  |
 | Module     | TPS rolling averages (1 m / 5 m / 15 m)  | ✅       | ❌                  |
 | Module     | Player count                             | ✅       | ✅                  |
-| Module     | Ping                                     | ✅       | ❌                  |
+| Module     | Ping                                     | ✅       | ✅                  |
 | Module     | Memory                                   | ✅       | ❌                  |
 | Module     | CPU                                      | ✅       | ❌                  |
 | Commands   | `/tabtps toggle <tab\|actionbar\|bossbar>` | ✅     | ❌                  |
@@ -77,7 +77,7 @@ unblock later ones (modular display → config → commands → theming).
 - [x] Extract the footer renderer into a `Module` trait (TPS / MSPT first) so additional modules can drop in.
 - [x] Render the tab list **header** in addition to the footer.
 - [x] **Player Count** module (`server.get_player_count` / `server.get_max_players`).
-- [ ] **Ping** module (`player.get_ping`).
+- [x] **Ping** module (`player.get_ping`).
 
 ### Phase 2 — Configuration
 
