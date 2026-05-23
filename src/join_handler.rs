@@ -21,7 +21,7 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
         let task_slot: Arc<Mutex<Option<u32>>> = Arc::new(Mutex::new(None));
         let task_slot_clone = task_slot.clone();
         let id = scheduler::schedule_repeating_task(20, 20, move |server| {
-            if let Some(player) = server.get_player_by_uuid(&player_id) {
+            if let Some(player) = server.get_player_by_uuid(player_id) {
                 player.set_tab_list_header_footer(TextComponent::text(""), gen_footer(&server));
             } else if let Some(id) = task_slot_clone.lock().unwrap().take() {
                 tracing::info!("Player gone, cancelling tab task id={id}");
