@@ -15,6 +15,22 @@ pub trait Module {
 pub struct TpsModule;
 pub struct MsptModule;
 
+/// Render `modules` into a single [`TextComponent`], separating successive
+/// entries with a space. Returns an empty component when `modules` is empty,
+/// which lets callers leave a tab list slot blank without special-casing.
+pub fn compose(modules: &[&dyn Module], server: &Server) -> TextComponent {
+    let mut parts = modules.iter();
+    let Some(first) = parts.next() else {
+        return TextComponent::text("");
+    };
+    let component = first.render(server);
+    for module in parts {
+        component.add_child(TextComponent::text(" "));
+        component.add_child(module.render(server));
+    }
+    component
+}
+
 impl Module for TpsModule {
     fn render(&self, server: &Server) -> TextComponent {
         let tps = server.get_tps();

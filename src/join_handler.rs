@@ -7,7 +7,7 @@ use pumpkin_plugin_api::{
     text::TextComponent,
 };
 
-use crate::module::{Module, MsptModule, TpsModule};
+use crate::module::{Module, MsptModule, TpsModule, compose};
 
 pub struct TabtpsJoinHandler;
 
@@ -24,7 +24,7 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
         let task_slot_clone = task_slot.clone();
         let id = scheduler::schedule_repeating_task(20, 20, move |server| {
             if let Some(player) = server.get_player_by_uuid(player_id) {
-                player.set_tab_list_header_footer(TextComponent::text(""), render_footer(&server));
+                player.set_tab_list_header_footer(render_header(&server), render_footer(&server));
             } else if let Some(id) = task_slot_clone.lock().unwrap().take() {
                 tracing::info!("Player gone, cancelling tab task id={id}");
                 scheduler::cancel_task(id);
@@ -37,17 +37,12 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
     }
 }
 
-fn render_footer(server: &Server) -> TextComponent {
-    let modules: [&dyn Module; 2] = [&TpsModule, &MsptModule];
+fn render_header(server: &Server) -> TextComponent {
+    let modules: [&dyn Module; 1] = [&TpsModule];
+    compose(&modules, server)
+}
 
-    let mut parts = modules.iter();
-    let footer = parts
-        .next()
-        .expect("at least one module is configured")
-        .render(server);
-    for module in parts {
-        footer.add_child(TextComponent::text(" "));
-        footer.add_child(module.render(server));
-    }
-    footer
+fn render_footer(server: &Server) -> TextComponent {
+    let modules: [&dyn Module; 1] = [&MsptModule];
+    compose(&modules, server)
 }
