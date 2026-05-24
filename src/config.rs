@@ -11,8 +11,9 @@ pub const CONFIG_FILE_NAME: &str = "tabtps.toml";
 
 /// Template written to disk on first run when no `tabtps.toml` exists. The
 /// values must mirror [`Config::default`] / [`ColorConfig::default`] /
-/// [`LayoutConfig::default`] / [`ActionbarConfig::default`] — if you change a
-/// default, update this template too.
+/// [`LayoutConfig::default`] / [`ActionbarConfig::default`] /
+/// [`BossbarConfig::default`] — if you change a default, update this template
+/// too.
 const DEFAULT_CONFIG_TEMPLATE: &str = "\
 # TabTPS configuration — auto-generated on first run.
 # Edit then run `/tabtps reload` (planned) or restart the server to apply.
@@ -38,6 +39,13 @@ footer = [\"mspt\", \"ping\"]
 # Set `enabled = false` to suppress the action bar entirely.
 enabled = true
 modules = [\"tps\", \"mspt\"]
+
+[bossbar]
+# Set `enabled = false` to suppress the boss bar entirely.
+# Progress is mapped from MSPT (`mspt / 50.0` clamped to [0, 1]) and the
+# bar colour follows the [colors] MSPT thresholds (green/yellow/red).
+enabled = true
+modules = [\"tps\", \"mspt\", \"ping\"]
 ";
 
 /// Default tick interval (`20` ticks ≈ 1 second on a healthy server).
@@ -62,6 +70,8 @@ pub struct Config {
     pub layout: LayoutConfig,
 
     pub actionbar: ActionbarConfig,
+
+    pub bossbar: BossbarConfig,
 }
 
 impl Default for Config {
@@ -71,6 +81,28 @@ impl Default for Config {
             colors: ColorConfig::default(),
             layout: LayoutConfig::default(),
             actionbar: ActionbarConfig::default(),
+            bossbar: BossbarConfig::default(),
+        }
+    }
+}
+
+/// Boss bar display options. Progress is fixed to MSPT mode for now
+/// (`progress = mspt / 50.0` clamped to `[0, 1]`); the bar colour follows the
+/// [`ColorConfig`] MSPT thresholds (with `gold` mapped to the boss bar's
+/// closest equivalent, `yellow`). The boss bar shares the tab list refresh
+/// cadence and is created lazily on the first tick a player is reachable.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct BossbarConfig {
+    pub enabled: bool,
+    pub modules: Vec<String>,
+}
+
+impl Default for BossbarConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            modules: vec!["tps".into(), "mspt".into(), "ping".into()],
         }
     }
 }
@@ -191,6 +223,7 @@ fn validate(cfg: &mut Config) {
     drop_unknown_modules(&mut cfg.layout.header, "header");
     drop_unknown_modules(&mut cfg.layout.footer, "footer");
     drop_unknown_modules(&mut cfg.actionbar.modules, "actionbar");
+    drop_unknown_modules(&mut cfg.bossbar.modules, "bossbar");
 }
 
 fn drop_unknown_modules(names: &mut Vec<String>, slot: &str) {

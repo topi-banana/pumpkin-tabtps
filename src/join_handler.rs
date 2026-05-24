@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use pumpkin_plugin_api::{
     Server,
+    boss_bar::{BossBar, BossBarColor, BossBarDivision},
     events::{EventData, EventHandler, PlayerJoinEvent},
     player::Player,
     scheduler,
@@ -9,7 +10,7 @@ use pumpkin_plugin_api::{
 };
 
 use crate::{
-    config,
+    config::{self, ColorConfig},
     module::{Module, compose, module_by_name},
 };
 
@@ -27,6 +28,7 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
         let task_slot: Arc<Mutex<Option<u32>>> = Arc::new(Mutex::new(None));
         let task_slot_clone = task_slot.clone();
         let interval = config::current_update_interval_ticks();
+        let mut bossbar: Option<BossBar> = None;
         let id = scheduler::schedule_repeating_task(interval, interval, move |server| {
             if let Some(player) = server.get_player_by_uuid(player_id) {
                 player.set_tab_list_header_footer(
@@ -36,9 +38,15 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
                 if let Some(text) = render_actionbar(&server, &player) {
                     player.show_actionbar(text);
                 }
-            } else if let Some(id) = task_slot_clone.lock().unwrap().take() {
-                tracing::info!("Player gone, cancelling tab task id={id}");
-                scheduler::cancel_task(id);
+                update_bossbar(&server, player, &mut bossbar);
+            } else {
+                if let Some(bb) = bossbar.take() {
+                    bb.remove_all();
+                }
+                if let Some(id) = task_slot_clone.lock().unwrap().take() {
+                    tracing::info!("Player gone, cancelling tab task id={id}");
+                    scheduler::cancel_task(id);
+                }
             }
         });
         *task_slot.lock().unwrap() = Some(id);
@@ -84,4 +92,60 @@ fn render_actionbar(server: &Server, player: &Player) -> Option<TextComponent> {
         return None;
     }
     Some(compose(&modules, server, player))
+}
+
+fn update_bossbar(server: &Server, player: Player, bossbar: &mut Option<BossBar>) {
+    let cfg = config::config().read().unwrap();
+    if !cfg.bossbar.enabled || cfg.bossbar.modules.is_empty() {
+        if let Some(bb) = bossbar.take() {
+            bb.remove_all();
+        }
+        return;
+    }
+    let modules: Vec<&'static dyn Module> = cfg
+        .bossbar
+        .modules
+        .iter()
+        .filter_map(|name| module_by_name(name))
+        .collect();
+    if modules.is_empty() {
+        if let Some(bb) = bossbar.take() {
+            bb.remove_all();
+        }
+        return;
+    }
+
+    let mspt = server.get_mspt();
+    let progress = mspt_progress(mspt);
+    let color = bossbar_color_for_mspt(mspt, &cfg.colors);
+    let title = compose(&modules, server, &player);
+    drop(cfg);
+
+    match bossbar {
+        None => {
+            let bb = BossBar::new(title, color, BossBarDivision::Notches20);
+            bb.add_player(player);
+            bb.set_health(progress);
+            *bossbar = Some(bb);
+        }
+        Some(bb) => {
+            bb.set_title(title);
+            bb.set_health(progress);
+            bb.set_color(color);
+        }
+    }
+}
+
+fn mspt_progress(mspt: f64) -> f32 {
+    (mspt / 50.0).clamp(0.0, 1.0) as f32
+}
+
+fn bossbar_color_for_mspt(mspt: f64, colors: &ColorConfig) -> BossBarColor {
+    if mspt < colors.mspt_green_max {
+        BossBarColor::Green
+    } else if mspt < colors.mspt_gold_max {
+        BossBarColor::Yellow
+    } else {
+        BossBarColor::Red
+    }
 }
