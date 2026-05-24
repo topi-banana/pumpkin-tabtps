@@ -55,7 +55,7 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 | Commands   | `/ping`, `/pingall`                      | ✅       | ✅                  |
 | Config     | `main.conf` (HOCON)                      | ✅       | ⚠️ TOML (subset)   |
 | Config     | `display-configs/` per-permission        | ✅       | ❌                  |
-| Config     | `themes/` (color sets, gradient)         | ✅       | ❌                  |
+| Config     | `themes/` (color sets, gradient)         | ✅       | ⚠️ colour set (no gradient) |
 | Other      | i18n (multi-locale messages)             | ✅       | ❌                  |
 | Other      | Per-player display toggle (persisted)    | ✅       | ❌                  |
 | Other      | Update checker                           | ✅       | ⏸ network perm.    |
@@ -110,7 +110,7 @@ unblock later ones (modular display → config → commands → theming).
 
 ### Phase 6 — Theming & i18n
 
-- [ ] Theme support: configurable color sets and gradient (port of upstream `Gradient`).
+- [x] Theme support: configurable colour sets via `[theme]` (16 named colours, 9 slots). Gradient port still TODO.
 - [ ] Wire the host `i18n` interface — `load_translations` at startup, `translate` keyed by `player.get_locale()`.
 - [ ] Ship the same baseline keys upstream uses (`messages.properties`).
 
@@ -187,6 +187,21 @@ modules = ["tps", "mspt"]
 # the colour follows the [colors] MSPT thresholds (green / yellow / red).
 enabled = true
 modules = ["tps", "mspt", "ping"]
+
+[theme]
+# Named-colour overrides for every value rendered into a tab list, action
+# bar, or boss bar. Valid names: black, dark_blue, dark_green, dark_aqua,
+# dark_red, dark_purple, gold, gray, dark_gray, blue, green, aqua, red,
+# light_purple, yellow, white.
+mspt_good = "green"
+mspt_warn = "gold"
+mspt_bad  = "red"
+ping_good = "green"
+ping_warn = "gold"
+ping_bad  = "red"
+label = "gray"
+separator = "white"
+player_count = "white"
 ```
 
 `update_interval_ticks` is read at `PlayerJoinEvent` time, so existing
