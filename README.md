@@ -48,8 +48,8 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 | Module     | Ping                                     | ✅       | ✅                  |
 | Module     | Memory                                   | ✅       | ❌                  |
 | Module     | CPU                                      | ✅       | ❌                  |
-| Commands   | `/tabtps toggle <tab\|actionbar\|bossbar>` | ✅     | ❌                  |
-| Commands   | `/tabtps reload`                         | ✅       | ❌                  |
+| Commands   | `/tabtps toggle <tab\|actionbar\|bossbar>` | ✅     | ✅                  |
+| Commands   | `/tabtps reload`                         | ✅       | ✅                  |
 | Commands   | `/tickinfo` (alias `/mspt`)              | ✅       | ❌                  |
 | Commands   | `/memory` (`/mem`, `/ram`)               | ✅       | ❌                  |
 | Commands   | `/ping`, `/pingall`                      | ✅       | ❌                  |
@@ -101,12 +101,12 @@ unblock later ones (modular display → config → commands → theming).
 
 ### Phase 5 — Commands
 
-- [ ] `/tabtps toggle <tab|actionbar|bossbar>` — per-player display toggle.
-- [ ] `/tabtps reload` — reload the config.
+- [x] `/tabtps toggle <tab|actionbar|bossbar>` — per-player display toggle (flips the in-memory [`PlayerToggles`](src/toggle.rs) record from Phase 3).
+- [x] `/tabtps reload` — re-reads `tabtps.toml` via `config::reload`.
 - [ ] `/tickinfo` (alias `/mspt`) — TPS + MSPT averages.
 - [ ] `/ping`, `/ping <name>`, `/pingall`.
 - [ ] `/memory` / `/mem` / `/ram` — uses `server.get_sys_info()` (requires `sys.info.ram`).
-- [ ] Register the matching permission nodes (`tabtps.command.*`, `tabtps.toggle.*`).
+- [x] Register `tabtps.command.use` / `tabtps.command.reload` / `tabtps.command.toggle` permission nodes.
 
 ### Phase 6 — Theming & i18n
 
@@ -128,7 +128,8 @@ pumpkin-tabtps
 ├── LICENSE             # MIT License
 └── src
     ├── lib.rs          # Plugin entry point (Plugin trait impl + register_plugin!)
-    ├── config.rs       # Config struct + load_from_disk + live RwLock snapshot
+    ├── commands.rs     # /tabtps reload + /tabtps toggle command handlers
+    ├── config.rs       # Config struct + load_from_disk + reload + live RwLock snapshot
     ├── module.rs       # Module trait + TPS/MSPT/PlayerCount/Ping modules
     ├── sampler.rs      # 1 Hz TPS / MSPT sampler + 1m / 5m / 15m rolling averages
     ├── toggle.rs       # In-memory per-player {tab, actionbar, bossbar} flags
