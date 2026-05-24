@@ -261,7 +261,7 @@ impl Default for ColorConfig {
     }
 }
 
-/// Read and parse `<data_folder>/tabtps.toml`. A missing or unparseable file
+/// Read and parse `<data_folder>/tabtps.toml`. A missing or unparsable file
 /// is reported through `tracing::error!` and the caller receives
 /// [`Config::default`] so the plugin keeps running.
 pub fn load_from_disk(data_folder: &Path) -> Config {
