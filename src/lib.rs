@@ -52,7 +52,10 @@ impl Plugin for TabtpsPlugin {
         });
 
         register_permissions(&context)?;
-        context.register_command(commands::build(), commands::PERM_USE);
+        context.register_command(commands::build_tabtps(), commands::PERM_USE);
+        context.register_command(commands::build_tickinfo(), commands::PERM_TICKINFO);
+        context.register_command(commands::build_ping(), commands::PERM_PING);
+        context.register_command(commands::build_pingall(), commands::PERM_PINGALL);
 
         context.register_event_handler(TabtpsJoinHandler, EventPriority::Normal, true)?;
 
@@ -83,6 +86,24 @@ fn register_permissions(context: &Context) -> pumpkin_plugin_api::Result<()> {
         Permission {
             node: commands::PERM_TOGGLE.into(),
             description: "Allows /tabtps toggle <tab|actionbar|bossbar>".into(),
+            default: PermissionDefault::Allow,
+            children: vec![],
+        },
+        Permission {
+            node: commands::PERM_TICKINFO.into(),
+            description: "Allows /tickinfo (alias /mspt)".into(),
+            default: PermissionDefault::Allow,
+            children: vec![],
+        },
+        Permission {
+            node: commands::PERM_PING.into(),
+            description: "Allows /ping and /ping <name>".into(),
+            default: PermissionDefault::Allow,
+            children: vec![],
+        },
+        Permission {
+            node: commands::PERM_PINGALL.into(),
+            description: "Allows /pingall".into(),
             default: PermissionDefault::Allow,
             children: vec![],
         },
