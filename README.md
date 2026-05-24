@@ -53,7 +53,7 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 | Commands   | `/tickinfo` (alias `/mspt`)              | ✅       | ❌                  |
 | Commands   | `/memory` (`/mem`, `/ram`)               | ✅       | ❌                  |
 | Commands   | `/ping`, `/pingall`                      | ✅       | ❌                  |
-| Config     | `main.conf` (HOCON)                      | ✅       | ⚠️ TOML, MSPT only |
+| Config     | `main.conf` (HOCON)                      | ✅       | ⚠️ TOML (subset)   |
 | Config     | `display-configs/` per-permission        | ✅       | ❌                  |
 | Config     | `themes/` (color sets, gradient)         | ✅       | ❌                  |
 | Other      | i18n (multi-locale messages)             | ✅       | ❌                  |
@@ -84,7 +84,7 @@ unblock later ones (modular display → config → commands → theming).
 - [x] Persist a config file under `context.get_data_folder()` (TOML, `tabtps.toml`). Missing/unparseable files log an error and fall back to defaults.
 - [x] **MSPT color thresholds** configurable (`[colors]` table).
 - [x] **Update interval** configurable (`update_interval_ticks`; applies on next join).
-- [ ] Active module list configurable.
+- [x] **Active module list** configurable (`[layout].header` / `[layout].footer`).
 - [x] Declare `fs.read.data` / `fs.write.data` in `PluginMetadata::permissions`.
 
 ### Phase 3 — Additional display targets
@@ -164,11 +164,21 @@ update_interval_ticks = 20   # tab list refresh cadence; 20 ticks ≈ 1 second
 [colors]
 mspt_green_max = 25.0  # MSPT strictly below this value renders green
 mspt_gold_max  = 40.0  # ... below this renders gold; everything else renders red
+
+[layout]
+# Modules rendered into the tab list, in order. Empty lists hide the
+# corresponding slot. Available names: tps, mspt, player_count, ping.
+header = ["tps", "player_count"]
+footer = ["mspt", "ping"]
 ```
 
 `update_interval_ticks` is read at `PlayerJoinEvent` time, so existing
 players keep their previous cadence until they rejoin. `0` is rejected
 (it would spin the scheduler) and replaced with the default.
+
+Unknown module names in `[layout]` are warned about at load time and
+skipped — the tab list keeps rendering with whatever names did
+resolve.
 
 Reloading is planned via `/tabtps reload` (Phase 5); restart the server in
 the meantime.
