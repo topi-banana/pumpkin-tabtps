@@ -1,11 +1,14 @@
 mod config;
 mod join_handler;
 mod module;
+mod sampler;
 mod toggle;
 
 use std::path::PathBuf;
 
-use pumpkin_plugin_api::{Context, Plugin, PluginMetadata, events::EventPriority, permissions};
+use pumpkin_plugin_api::{
+    Context, Plugin, PluginMetadata, events::EventPriority, permissions, scheduler,
+};
 
 use crate::join_handler::TabtpsJoinHandler;
 
@@ -38,6 +41,10 @@ impl Plugin for TabtpsPlugin {
 
         let data_folder = PathBuf::from(context.get_data_folder());
         config::replace(config::load_from_disk(&data_folder));
+
+        scheduler::schedule_repeating_task(20, 20, |server| {
+            sampler::record(server.get_tps(), server.get_mspt());
+        });
 
         context.register_event_handler(TabtpsJoinHandler, EventPriority::Normal, true)?;
 

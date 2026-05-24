@@ -4,6 +4,8 @@ use pumpkin_plugin_api::{
     text::{NamedColor, TextComponent},
 };
 
+use crate::sampler::{self, Averages};
+
 /// A single labelled value rendered into the tab list footer (or header).
 ///
 /// Implementors decide what data to sample from [`Server`] and the viewing
@@ -54,16 +56,23 @@ pub fn compose(modules: &[&dyn Module], server: &Server, player: &Player) -> Tex
 
 impl Module for TpsModule {
     fn render(&self, server: &Server, _player: &Player) -> TextComponent {
-        let tps = server.get_tps();
         let mspt = server.get_mspt();
-        labeled_value("TPS", &format!("{tps:.2}"), color_for_mspt(mspt))
+        labeled_value(
+            "TPS",
+            &format_averages(sampler::tps_averages()),
+            color_for_mspt(mspt),
+        )
     }
 }
 
 impl Module for MsptModule {
     fn render(&self, server: &Server, _player: &Player) -> TextComponent {
         let mspt = server.get_mspt();
-        labeled_value("MSPT", &format!("{mspt:.2}"), color_for_mspt(mspt))
+        labeled_value(
+            "MSPT",
+            &format_averages(sampler::mspt_averages()),
+            color_for_mspt(mspt),
+        )
     }
 }
 
@@ -80,6 +89,19 @@ impl Module for PingModule {
         let ping = player.get_ping();
         labeled_value("Ping", &format!("{ping}ms"), color_for_ping(ping))
     }
+}
+
+/// Renders the upstream-style `"1m, 5m, 15m"` rolling-average string. Shows
+/// `"—, —, —"` before the sampler has collected any data (first second after
+/// plugin load).
+fn format_averages(avg: Averages) -> String {
+    if avg.is_nan() {
+        return "—, —, —".to_string();
+    }
+    format!(
+        "{:.2}, {:.2}, {:.2}",
+        avg.one_min, avg.five_min, avg.fifteen_min,
+    )
 }
 
 fn color_for_mspt(mspt: f64) -> NamedColor {
