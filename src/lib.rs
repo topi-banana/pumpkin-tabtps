@@ -1,3 +1,4 @@
+mod commands;
 mod config;
 mod join_handler;
 mod module;
@@ -7,7 +8,10 @@ mod toggle;
 use std::path::PathBuf;
 
 use pumpkin_plugin_api::{
-    Context, Plugin, PluginMetadata, events::EventPriority, permissions, scheduler,
+    Context, Plugin, PluginMetadata,
+    events::EventPriority,
+    permission::{Permission, PermissionDefault, PermissionLevel},
+    permissions, scheduler,
 };
 
 use crate::join_handler::TabtpsJoinHandler;
@@ -40,11 +44,15 @@ impl Plugin for TabtpsPlugin {
         tracing::info!("Hello, TabTPS!");
 
         let data_folder = PathBuf::from(context.get_data_folder());
+        config::init_data_folder(data_folder.clone());
         config::replace(config::load_from_disk(&data_folder));
 
         scheduler::schedule_repeating_task(20, 20, |server| {
             sampler::record(server.get_tps(), server.get_mspt());
         });
+
+        register_permissions(&context)?;
+        context.register_command(commands::build(), commands::PERM_USE);
 
         context.register_event_handler(TabtpsJoinHandler, EventPriority::Normal, true)?;
 
@@ -56,6 +64,35 @@ impl Plugin for TabtpsPlugin {
 
         Ok(())
     }
+}
+
+fn register_permissions(context: &Context) -> pumpkin_plugin_api::Result<()> {
+    let perms = [
+        Permission {
+            node: commands::PERM_USE.into(),
+            description: "Required to invoke any /tabtps subcommand".into(),
+            default: PermissionDefault::Allow,
+            children: vec![],
+        },
+        Permission {
+            node: commands::PERM_RELOAD.into(),
+            description: "Allows /tabtps reload (re-read tabtps.toml)".into(),
+            default: PermissionDefault::Op(PermissionLevel::Four),
+            children: vec![],
+        },
+        Permission {
+            node: commands::PERM_TOGGLE.into(),
+            description: "Allows /tabtps toggle <tab|actionbar|bossbar>".into(),
+            default: PermissionDefault::Allow,
+            children: vec![],
+        },
+    ];
+    for perm in &perms {
+        if let Err(err) = context.register_permission(perm) {
+            tracing::warn!(node = %perm.node, error = %err, "Could not register permission");
+        }
+    }
+    Ok(())
 }
 
 pumpkin_plugin_api::register_plugin!(TabtpsPlugin);

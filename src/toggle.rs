@@ -48,3 +48,42 @@ pub fn for_player(key: PlayerKey) -> PlayerToggles {
 pub fn forget(key: PlayerKey) {
     map().lock().unwrap().remove(&key);
 }
+
+/// Which surface a `/tabtps toggle <which>` invocation refers to.
+#[derive(Debug, Clone, Copy)]
+pub enum ToggleField {
+    Tab,
+    Actionbar,
+    Bossbar,
+}
+
+impl ToggleField {
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::Tab => "tab list",
+            Self::Actionbar => "action bar",
+            Self::Bossbar => "boss bar",
+        }
+    }
+}
+
+/// Flip the given field for `key` and return the new value. Creates a
+/// default-everything-on entry if the player has no overrides yet.
+pub fn flip(key: PlayerKey, which: ToggleField) -> bool {
+    let mut m = map().lock().unwrap();
+    let toggles = m.entry(key).or_default();
+    match which {
+        ToggleField::Tab => {
+            toggles.tab = !toggles.tab;
+            toggles.tab
+        }
+        ToggleField::Actionbar => {
+            toggles.actionbar = !toggles.actionbar;
+            toggles.actionbar
+        }
+        ToggleField::Bossbar => {
+            toggles.bossbar = !toggles.bossbar;
+            toggles.bossbar
+        }
+    }
+}

@@ -1,6 +1,6 @@
 use std::{
     fs,
-    path::Path,
+    path::{Path, PathBuf},
     sync::{Arc, OnceLock, RwLock},
 };
 
@@ -16,7 +16,7 @@ pub const CONFIG_FILE_NAME: &str = "tabtps.toml";
 /// too.
 const DEFAULT_CONFIG_TEMPLATE: &str = "\
 # TabTPS configuration — auto-generated on first run.
-# Edit then run `/tabtps reload` (planned) or restart the server to apply.
+# Edit then run `/tabtps reload` (or restart the server) to apply.
 
 # Tab list refresh cadence. 20 ticks ≈ 1 second.
 # Read at PlayerJoinEvent time, so existing players keep their previous
@@ -52,9 +52,9 @@ modules = [\"tps\", \"mspt\", \"ping\"]
 pub const DEFAULT_UPDATE_INTERVAL_TICKS: u32 = 20;
 
 /// Plugin-wide configuration loaded from `tabtps.toml`. Reloadable via the
-/// (planned) `/tabtps reload` command — the live values live in a shared
-/// `RwLock` so reads from per-tick tasks see the latest snapshot without
-/// having to be rescheduled.
+/// `/tabtps reload` command — the live values live in a shared `RwLock` so
+/// reads from per-tick tasks see the latest snapshot without having to be
+/// rescheduled.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
@@ -256,8 +256,25 @@ pub fn config() -> &'static Arc<RwLock<Config>> {
     CONFIG.get_or_init(|| Arc::new(RwLock::new(Config::default())))
 }
 
-/// Replace the live config — used by startup load and (eventually) the reload
+/// Replace the live config — used by startup load and the `/tabtps reload`
 /// command.
 pub fn replace(new_config: Config) {
     *config().write().unwrap() = new_config;
+}
+
+static DATA_FOLDER: OnceLock<PathBuf> = OnceLock::new();
+
+/// Remember the plugin's data folder so the `/tabtps reload` handler can find
+/// `tabtps.toml` later. Called once from `on_load`.
+pub fn init_data_folder(path: PathBuf) {
+    let _ = DATA_FOLDER.set(path);
+}
+
+/// Re-read `tabtps.toml` and swap the live config in. Returns the new config
+/// on success, or an error string suitable for showing to the command sender.
+pub fn reload() -> Result<Config, &'static str> {
+    let folder = DATA_FOLDER.get().ok_or("data folder not initialised yet")?;
+    let new_config = load_from_disk(folder);
+    replace(new_config.clone());
+    Ok(new_config)
 }
