@@ -11,4 +11,6 @@ lto = true
 
 [dependencies]
 pumpkin-plugin-api = { version = "0.1.0", git = "https://github.com/Pumpkin-MC/Pumpkin", package = "pumpkin-plugin-api" }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
 tracing = "0.1"

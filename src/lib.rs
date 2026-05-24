@@ -1,7 +1,10 @@
+mod config;
 mod join_handler;
 mod module;
 
-use pumpkin_plugin_api::{Context, Plugin, PluginMetadata, events::EventPriority};
+use std::path::PathBuf;
+
+use pumpkin_plugin_api::{Context, Plugin, PluginMetadata, events::EventPriority, permissions};
 
 use crate::join_handler::TabtpsJoinHandler;
 
@@ -22,12 +25,18 @@ impl Plugin for TabtpsPlugin {
                 .collect(),
             description: env!("CARGO_PKG_DESCRIPTION").to_string(),
             dependencies: vec![],
-            permissions: vec![],
+            permissions: vec![
+                permissions::FS_READ_DATA.to_string(),
+                permissions::FS_WRITE_DATA.to_string(),
+            ],
         }
     }
 
     fn on_load(&mut self, context: Context) -> pumpkin_plugin_api::Result<()> {
         tracing::info!("Hello, TabTPS!");
+
+        let data_folder = PathBuf::from(context.get_data_folder());
+        config::replace(config::load_from_disk(&data_folder));
 
         context.register_event_handler(TabtpsJoinHandler, EventPriority::Normal, true)?;
 

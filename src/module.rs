@@ -65,10 +65,13 @@ impl Module for PingModule {
 }
 
 fn color_for_mspt(mspt: f64) -> NamedColor {
-    match mspt {
-        ..25.0 => NamedColor::Green,
-        ..40.0 => NamedColor::Gold,
-        _ => NamedColor::Red,
+    let cfg = crate::config::config().read().unwrap();
+    if mspt < cfg.colors.mspt_green_max {
+        NamedColor::Green
+    } else if mspt < cfg.colors.mspt_gold_max {
+        NamedColor::Gold
+    } else {
+        NamedColor::Red
     }
 }
 
