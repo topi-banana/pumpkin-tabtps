@@ -12,6 +12,7 @@ use pumpkin_plugin_api::{
 use crate::{
     config::{self, ColorConfig},
     module::{Module, compose, module_by_name},
+    toggle,
 };
 
 pub struct TabtpsJoinHandler;
@@ -28,21 +29,28 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
         let task_slot: Arc<Mutex<Option<u32>>> = Arc::new(Mutex::new(None));
         let task_slot_clone = task_slot.clone();
         let interval = config::current_update_interval_ticks();
+        let key: toggle::PlayerKey = (player_id.high, player_id.low);
         let mut bossbar: Option<BossBar> = None;
         let id = scheduler::schedule_repeating_task(interval, interval, move |server| {
             if let Some(player) = server.get_player_by_uuid(player_id) {
-                player.set_tab_list_header_footer(
-                    render_header(&server, &player),
-                    render_footer(&server, &player),
-                );
-                if let Some(text) = render_actionbar(&server, &player) {
+                let toggles = toggle::for_player(key);
+                if toggles.tab {
+                    player.set_tab_list_header_footer(
+                        render_header(&server, &player),
+                        render_footer(&server, &player),
+                    );
+                }
+                if toggles.actionbar
+                    && let Some(text) = render_actionbar(&server, &player)
+                {
                     player.show_actionbar(text);
                 }
-                update_bossbar(&server, player, &mut bossbar);
+                update_bossbar(&server, player, &mut bossbar, toggles.bossbar);
             } else {
                 if let Some(bb) = bossbar.take() {
                     bb.remove_all();
                 }
+                toggle::forget(key);
                 if let Some(id) = task_slot_clone.lock().unwrap().take() {
                     tracing::info!("Player gone, cancelling tab task id={id}");
                     scheduler::cancel_task(id);
@@ -94,9 +102,9 @@ fn render_actionbar(server: &Server, player: &Player) -> Option<TextComponent> {
     Some(compose(&modules, server, player))
 }
 
-fn update_bossbar(server: &Server, player: Player, bossbar: &mut Option<BossBar>) {
+fn update_bossbar(server: &Server, player: Player, bossbar: &mut Option<BossBar>, allowed: bool) {
     let cfg = config::config().read().unwrap();
-    if !cfg.bossbar.enabled || cfg.bossbar.modules.is_empty() {
+    if !allowed || !cfg.bossbar.enabled || cfg.bossbar.modules.is_empty() {
         if let Some(bb) = bossbar.take() {
             bb.remove_all();
         }

@@ -1,6 +1,7 @@
 mod config;
 mod join_handler;
 mod module;
+mod toggle;
 
 use std::path::PathBuf;
 
