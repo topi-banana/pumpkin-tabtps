@@ -80,7 +80,12 @@ impl Module for PlayerCountModule {
     fn render(&self, server: &Server, _player: &Player) -> TextComponent {
         let current = server.get_player_count();
         let max = server.get_max_players();
-        labeled_value("Players", &format!("{current}/{max}"), NamedColor::White)
+        let theme_color = crate::config::config().read().unwrap().theme.player_count;
+        labeled_value(
+            "Players",
+            &format!("{current}/{max}"),
+            theme_color.to_named(),
+        )
     }
 }
 
@@ -106,29 +111,33 @@ fn format_averages(avg: Averages) -> String {
 
 fn color_for_mspt(mspt: f64) -> NamedColor {
     let cfg = crate::config::config().read().unwrap();
-    if mspt < cfg.colors.mspt_green_max {
-        NamedColor::Green
+    let bucket = if mspt < cfg.colors.mspt_green_max {
+        cfg.theme.mspt_good
     } else if mspt < cfg.colors.mspt_gold_max {
-        NamedColor::Gold
+        cfg.theme.mspt_warn
     } else {
-        NamedColor::Red
-    }
+        cfg.theme.mspt_bad
+    };
+    bucket.to_named()
 }
 
 fn color_for_ping(ping: u32) -> NamedColor {
-    match ping {
-        ..100 => NamedColor::Green,
-        100..200 => NamedColor::Gold,
-        _ => NamedColor::Red,
-    }
+    let cfg = crate::config::config().read().unwrap();
+    let bucket = match ping {
+        ..100 => cfg.theme.ping_good,
+        100..200 => cfg.theme.ping_warn,
+        _ => cfg.theme.ping_bad,
+    };
+    bucket.to_named()
 }
 
 fn labeled_value(name: &'static str, value: &str, color: NamedColor) -> TextComponent {
+    let theme = crate::config::config().read().unwrap().theme;
     let label = TextComponent::text(name);
-    label.color_named(NamedColor::Gray);
+    label.color_named(theme.label.to_named());
     label.add_child({
         let sep = TextComponent::text(": ");
-        sep.color_named(NamedColor::White);
+        sep.color_named(theme.separator.to_named());
         sep
     });
     label.add_child({

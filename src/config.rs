@@ -4,6 +4,7 @@ use std::{
     sync::{Arc, OnceLock, RwLock},
 };
 
+use pumpkin_plugin_api::text::NamedColor;
 use serde::{Deserialize, Serialize};
 
 /// Name of the config file inside the plugin's data folder.
@@ -12,8 +13,8 @@ pub const CONFIG_FILE_NAME: &str = "tabtps.toml";
 /// Template written to disk on first run when no `tabtps.toml` exists. The
 /// values must mirror [`Config::default`] / [`ColorConfig::default`] /
 /// [`LayoutConfig::default`] / [`ActionbarConfig::default`] /
-/// [`BossbarConfig::default`] — if you change a default, update this template
-/// too.
+/// [`BossbarConfig::default`] / [`ThemeConfig::default`] — if you change a
+/// default, update this template too.
 const DEFAULT_CONFIG_TEMPLATE: &str = "\
 # TabTPS configuration — auto-generated on first run.
 # Edit then run `/tabtps reload` (or restart the server) to apply.
@@ -46,6 +47,21 @@ modules = [\"tps\", \"mspt\"]
 # bar colour follows the [colors] MSPT thresholds (green/yellow/red).
 enabled = true
 modules = [\"tps\", \"mspt\", \"ping\"]
+
+[theme]
+# Named-colour overrides for every value rendered into a tab list, action
+# bar, or boss bar. Valid colour names: black, dark_blue, dark_green,
+# dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue, green,
+# aqua, red, light_purple, yellow, white.
+mspt_good = \"green\"
+mspt_warn = \"gold\"
+mspt_bad = \"red\"
+ping_good = \"green\"
+ping_warn = \"gold\"
+ping_bad = \"red\"
+label = \"gray\"
+separator = \"white\"
+player_count = \"white\"
 ";
 
 /// Default tick interval (`20` ticks ≈ 1 second on a healthy server).
@@ -72,6 +88,8 @@ pub struct Config {
     pub actionbar: ActionbarConfig,
 
     pub bossbar: BossbarConfig,
+
+    pub theme: ThemeConfig,
 }
 
 impl Default for Config {
@@ -82,6 +100,86 @@ impl Default for Config {
             layout: LayoutConfig::default(),
             actionbar: ActionbarConfig::default(),
             bossbar: BossbarConfig::default(),
+            theme: ThemeConfig::default(),
+        }
+    }
+}
+
+/// Serde-friendly mirror of [`NamedColor`] using snake_case strings, so the
+/// theme file can read `"dark_red"` instead of having to inline a Rust enum
+/// import.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ThemeColor {
+    Black,
+    DarkBlue,
+    DarkGreen,
+    DarkAqua,
+    DarkRed,
+    DarkPurple,
+    Gold,
+    Gray,
+    DarkGray,
+    Blue,
+    Green,
+    Aqua,
+    Red,
+    LightPurple,
+    Yellow,
+    White,
+}
+
+impl ThemeColor {
+    pub fn to_named(self) -> NamedColor {
+        match self {
+            Self::Black => NamedColor::Black,
+            Self::DarkBlue => NamedColor::DarkBlue,
+            Self::DarkGreen => NamedColor::DarkGreen,
+            Self::DarkAqua => NamedColor::DarkAqua,
+            Self::DarkRed => NamedColor::DarkRed,
+            Self::DarkPurple => NamedColor::DarkPurple,
+            Self::Gold => NamedColor::Gold,
+            Self::Gray => NamedColor::Gray,
+            Self::DarkGray => NamedColor::DarkGray,
+            Self::Blue => NamedColor::Blue,
+            Self::Green => NamedColor::Green,
+            Self::Aqua => NamedColor::Aqua,
+            Self::Red => NamedColor::Red,
+            Self::LightPurple => NamedColor::LightPurple,
+            Self::Yellow => NamedColor::Yellow,
+            Self::White => NamedColor::White,
+        }
+    }
+}
+
+/// User-overridable colour palette used everywhere the renderer puts a value
+/// on-screen. Defaults reproduce the prior hard-coded scheme exactly.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ThemeConfig {
+    pub mspt_good: ThemeColor,
+    pub mspt_warn: ThemeColor,
+    pub mspt_bad: ThemeColor,
+    pub ping_good: ThemeColor,
+    pub ping_warn: ThemeColor,
+    pub ping_bad: ThemeColor,
+    pub label: ThemeColor,
+    pub separator: ThemeColor,
+    pub player_count: ThemeColor,
+}
+
+impl Default for ThemeConfig {
+    fn default() -> Self {
+        Self {
+            mspt_good: ThemeColor::Green,
+            mspt_warn: ThemeColor::Gold,
+            mspt_bad: ThemeColor::Red,
+            ping_good: ThemeColor::Green,
+            ping_warn: ThemeColor::Gold,
+            ping_bad: ThemeColor::Red,
+            label: ThemeColor::Gray,
+            separator: ThemeColor::White,
+            player_count: ThemeColor::White,
         }
     }
 }

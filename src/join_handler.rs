@@ -10,7 +10,7 @@ use pumpkin_plugin_api::{
 };
 
 use crate::{
-    config::{self, ColorConfig},
+    config::{self, ColorConfig, ThemeColor, ThemeConfig},
     module::{Module, compose, module_by_name},
     toggle,
 };
@@ -125,7 +125,7 @@ fn update_bossbar(server: &Server, player: Player, bossbar: &mut Option<BossBar>
 
     let mspt = server.get_mspt();
     let progress = mspt_progress(mspt);
-    let color = bossbar_color_for_mspt(mspt, &cfg.colors);
+    let color = bossbar_color_for_mspt(mspt, &cfg.colors, &cfg.theme);
     let title = compose(&modules, server, &player);
     drop(cfg);
 
@@ -148,12 +148,30 @@ fn mspt_progress(mspt: f64) -> f32 {
     (mspt / 50.0).clamp(0.0, 1.0) as f32
 }
 
-fn bossbar_color_for_mspt(mspt: f64, colors: &ColorConfig) -> BossBarColor {
-    if mspt < colors.mspt_green_max {
-        BossBarColor::Green
+fn bossbar_color_for_mspt(mspt: f64, colors: &ColorConfig, theme: &ThemeConfig) -> BossBarColor {
+    let bucket = if mspt < colors.mspt_green_max {
+        theme.mspt_good
     } else if mspt < colors.mspt_gold_max {
-        BossBarColor::Yellow
+        theme.mspt_warn
     } else {
-        BossBarColor::Red
+        theme.mspt_bad
+    };
+    theme_to_bossbar(bucket)
+}
+
+/// Best-fit mapping from the 16-colour NamedColor palette down to the boss
+/// bar's 7-colour palette. Greys collapse to white; navy / aqua collapse to
+/// blue; dark-red / red to red; gold / yellow to yellow; etc.
+fn theme_to_bossbar(c: ThemeColor) -> BossBarColor {
+    use BossBarColor as B;
+    use ThemeColor as T;
+    match c {
+        T::Black | T::Gray | T::DarkGray | T::White => B::White,
+        T::DarkBlue | T::Blue | T::DarkAqua | T::Aqua => B::Blue,
+        T::DarkGreen | T::Green => B::Green,
+        T::DarkRed | T::Red => B::Red,
+        T::DarkPurple => B::Purple,
+        T::LightPurple => B::Pink,
+        T::Gold | T::Yellow => B::Yellow,
     }
 }
