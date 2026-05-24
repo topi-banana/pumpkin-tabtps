@@ -40,7 +40,7 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 |------------|------------------------------------------|:--------:|:------------------:|
 | Display    | Tab list (header + footer)               | ✅       | ✅                  |
 | Display    | Action bar                               | ✅       | ✅                  |
-| Display    | Boss bar (with progress)                 | ✅       | ❌                  |
+| Display    | Boss bar (with progress)                 | ✅       | ✅                  |
 | Module     | TPS (current)                            | ✅       | ✅                  |
 | Module     | MSPT (current)                           | ✅       | ✅                  |
 | Module     | TPS rolling averages (1 m / 5 m / 15 m)  | ✅       | ❌                  |
@@ -90,7 +90,7 @@ unblock later ones (modular display → config → commands → theming).
 ### Phase 3 — Additional display targets
 
 - [x] **Action bar** display via `player.show_actionbar` (`[actionbar]` table, default `["tps", "mspt"]`).
-- [ ] **Boss bar** display via the `boss-bar` resource — title + 0.0–1.0 progress mapped to TPS or MSPT, with color shifting on thresholds.
+- [x] **Boss bar** display via the `boss-bar` resource (`[bossbar]` table, default `["tps", "mspt", "ping"]`). MSPT-driven progress + `notches_20`; colour from `[colors]` thresholds.
 - [ ] Per-player toggle state (in-memory first, persisted in Phase 5).
 
 ### Phase 4 — Rolling averages
@@ -177,15 +177,24 @@ footer = ["mspt", "ping"]
 # `modules` list does the same.
 enabled = true
 modules = ["tps", "mspt"]
+
+[bossbar]
+# Per-player boss bar. Progress is `mspt / 50.0` clamped to [0, 1] and
+# the colour follows the [colors] MSPT thresholds (green / yellow / red).
+enabled = true
+modules = ["tps", "mspt", "ping"]
 ```
 
 `update_interval_ticks` is read at `PlayerJoinEvent` time, so existing
 players keep their previous cadence until they rejoin. `0` is rejected
 (it would spin the scheduler) and replaced with the default.
 
-Unknown module names in `[layout]` or `[actionbar]` are warned about at
-load time and skipped — the tab list / action bar keeps rendering with
-whatever names did resolve.
+Unknown module names in `[layout]`, `[actionbar]`, or `[bossbar]` are
+warned about at load time and skipped — the corresponding display keeps
+rendering with whatever names did resolve.
+
+The boss bar's fill mode and overlay are hard-coded for now (`mspt` /
+`notches_20`); they will become config keys in a later iteration.
 
 Reloading is planned via `/tabtps reload` (Phase 5); restart the server in
 the meantime.
