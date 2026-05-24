@@ -50,9 +50,9 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 | Module     | CPU                                      | ✅       | ❌                  |
 | Commands   | `/tabtps toggle <tab\|actionbar\|bossbar>` | ✅     | ✅                  |
 | Commands   | `/tabtps reload`                         | ✅       | ✅                  |
-| Commands   | `/tickinfo` (alias `/mspt`)              | ✅       | ❌                  |
-| Commands   | `/memory` (`/mem`, `/ram`)               | ✅       | ❌                  |
-| Commands   | `/ping`, `/pingall`                      | ✅       | ❌                  |
+| Commands   | `/tickinfo` (alias `/mspt`)              | ✅       | ✅                  |
+| Commands   | `/memory` (`/mem`, `/ram`)               | ✅       | ⏸ sys.info.ram perm |
+| Commands   | `/ping`, `/pingall`                      | ✅       | ✅                  |
 | Config     | `main.conf` (HOCON)                      | ✅       | ⚠️ TOML (subset)   |
 | Config     | `display-configs/` per-permission        | ✅       | ❌                  |
 | Config     | `themes/` (color sets, gradient)         | ✅       | ❌                  |
@@ -103,10 +103,10 @@ unblock later ones (modular display → config → commands → theming).
 
 - [x] `/tabtps toggle <tab|actionbar|bossbar>` — per-player display toggle (flips the in-memory [`PlayerToggles`](src/toggle.rs) record from Phase 3).
 - [x] `/tabtps reload` — re-reads `tabtps.toml` via `config::reload`.
-- [ ] `/tickinfo` (alias `/mspt`) — TPS + MSPT averages.
-- [ ] `/ping`, `/ping <name>`, `/pingall`.
-- [ ] `/memory` / `/mem` / `/ram` — uses `server.get_sys_info()` (requires `sys.info.ram`).
-- [x] Register `tabtps.command.use` / `tabtps.command.reload` / `tabtps.command.toggle` permission nodes.
+- [x] `/tickinfo` (alias `/mspt`) — TPS + MSPT rolling averages.
+- [x] `/ping`, `/ping <name>`, `/pingall`.
+- [ ] `/memory` / `/mem` / `/ram` — uses `server.get_sys_info()` (requires `sys.info.ram`, pending operator OK on that permission ask).
+- [x] Register `tabtps.command.{use,reload,toggle,tickinfo,ping,pingall}` permission nodes.
 
 ### Phase 6 — Theming & i18n
 
