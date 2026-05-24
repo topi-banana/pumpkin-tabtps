@@ -10,7 +10,7 @@ use pumpkin_plugin_api::{
 
 use crate::{
     config,
-    module::{Module, MsptModule, PingModule, PlayerCountModule, TpsModule, compose},
+    module::{Module, compose, module_by_name},
 };
 
 pub struct TabtpsJoinHandler;
@@ -46,11 +46,22 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
 }
 
 fn render_header(server: &Server, player: &Player) -> TextComponent {
-    let modules: [&dyn Module; 2] = [&TpsModule, &PlayerCountModule];
-    compose(&modules, server, player)
+    render_slot(|cfg| &cfg.layout.header, server, player)
 }
 
 fn render_footer(server: &Server, player: &Player) -> TextComponent {
-    let modules: [&dyn Module; 2] = [&MsptModule, &PingModule];
+    render_slot(|cfg| &cfg.layout.footer, server, player)
+}
+
+fn render_slot(
+    pick: impl FnOnce(&config::Config) -> &Vec<String>,
+    server: &Server,
+    player: &Player,
+) -> TextComponent {
+    let cfg = config::config().read().unwrap();
+    let modules: Vec<&'static dyn Module> = pick(&cfg)
+        .iter()
+        .filter_map(|name| module_by_name(name))
+        .collect();
     compose(&modules, server, player)
 }

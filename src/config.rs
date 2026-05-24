@@ -27,6 +27,8 @@ pub struct Config {
     pub update_interval_ticks: u32,
 
     pub colors: ColorConfig,
+
+    pub layout: LayoutConfig,
 }
 
 impl Default for Config {
@@ -34,6 +36,25 @@ impl Default for Config {
         Self {
             update_interval_ticks: DEFAULT_UPDATE_INTERVAL_TICKS,
             colors: ColorConfig::default(),
+            layout: LayoutConfig::default(),
+        }
+    }
+}
+
+/// Names of the modules rendered into the tab list header / footer. Order is
+/// preserved; unknown names are dropped at load time with a warning.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct LayoutConfig {
+    pub header: Vec<String>,
+    pub footer: Vec<String>,
+}
+
+impl Default for LayoutConfig {
+    fn default() -> Self {
+        Self {
+            header: vec!["tps".into(), "player_count".into()],
+            footer: vec!["mspt".into(), "ping".into()],
         }
     }
 }
@@ -99,6 +120,23 @@ fn validate(cfg: &mut Config) {
         );
         cfg.update_interval_ticks = DEFAULT_UPDATE_INTERVAL_TICKS;
     }
+    drop_unknown_modules(&mut cfg.layout.header, "header");
+    drop_unknown_modules(&mut cfg.layout.footer, "footer");
+}
+
+fn drop_unknown_modules(names: &mut Vec<String>, slot: &str) {
+    names.retain(|name| {
+        if crate::module::module_by_name(name).is_some() {
+            true
+        } else {
+            tracing::warn!(
+                slot,
+                name = %name,
+                "tabtps.toml: unknown module name in [layout] — skipping",
+            );
+            false
+        }
+    });
 }
 
 /// Current update interval as ticks, suitable for passing to

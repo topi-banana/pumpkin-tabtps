@@ -18,6 +18,24 @@ pub struct MsptModule;
 pub struct PlayerCountModule;
 pub struct PingModule;
 
+static TPS_MODULE: TpsModule = TpsModule;
+static MSPT_MODULE: MsptModule = MsptModule;
+static PLAYER_COUNT_MODULE: PlayerCountModule = PlayerCountModule;
+static PING_MODULE: PingModule = PingModule;
+
+/// Resolves a configured module name (as written in `tabtps.toml`) to its
+/// implementation. Names are snake_case and stable — they form the user-facing
+/// API for `[layout].header` / `[layout].footer`.
+pub fn module_by_name(name: &str) -> Option<&'static dyn Module> {
+    match name {
+        "tps" => Some(&TPS_MODULE),
+        "mspt" => Some(&MSPT_MODULE),
+        "player_count" => Some(&PLAYER_COUNT_MODULE),
+        "ping" => Some(&PING_MODULE),
+        _ => None,
+    }
+}
+
 /// Render `modules` into a single [`TextComponent`], separating successive
 /// entries with a space. Returns an empty component when `modules` is empty,
 /// which lets callers leave a tab list slot blank without special-casing.
