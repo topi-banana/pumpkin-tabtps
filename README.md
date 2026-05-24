@@ -53,7 +53,7 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 | Commands   | `/tickinfo` (alias `/mspt`)              | ✅       | ❌                  |
 | Commands   | `/memory` (`/mem`, `/ram`)               | ✅       | ❌                  |
 | Commands   | `/ping`, `/pingall`                      | ✅       | ❌                  |
-| Config     | `main.conf` (HOCON)                      | ✅       | ❌                  |
+| Config     | `main.conf` (HOCON)                      | ✅       | ⚠️ TOML, MSPT only |
 | Config     | `display-configs/` per-permission        | ✅       | ❌                  |
 | Config     | `themes/` (color sets, gradient)         | ✅       | ❌                  |
 | Other      | i18n (multi-locale messages)             | ✅       | ❌                  |
@@ -81,9 +81,10 @@ unblock later ones (modular display → config → commands → theming).
 
 ### Phase 2 — Configuration
 
-- [ ] Persist a config file under `context.get_data_folder()` (TOML, e.g. `tabtps.toml`).
-- [ ] Make color thresholds, update interval, and the active module list configurable.
-- [ ] Declare `fs.read.data` / `fs.write.data` in `PluginMetadata::permissions`.
+- [x] Persist a config file under `context.get_data_folder()` (TOML, `tabtps.toml`). Missing/unparseable files log an error and fall back to defaults.
+- [x] **MSPT color thresholds** configurable (`[colors]` table).
+- [ ] Update interval and active module list configurable.
+- [x] Declare `fs.read.data` / `fs.write.data` in `PluginMetadata::permissions`.
 
 ### Phase 3 — Additional display targets
 
@@ -125,7 +126,9 @@ pumpkin-tabtps
 ├── LICENSE             # MIT License
 └── src
     ├── lib.rs          # Plugin entry point (Plugin trait impl + register_plugin!)
-    └── join_handler.rs # PlayerJoinEvent handler + tab footer update task
+    ├── config.rs       # Config struct + load_from_disk + live RwLock snapshot
+    ├── module.rs       # Module trait + TPS/MSPT/PlayerCount/Ping modules
+    └── join_handler.rs # PlayerJoinEvent handler + tab header/footer update task
 ```
 
 ## Usage
@@ -147,9 +150,26 @@ pumpkin-tabtps
     * Log `Hello, TabTPS!` on load
     * Start updating the tab footer every second when a player joins
 
+## Configuration
+
+On load the plugin reads `<plugin-data-folder>/tabtps.toml`. The file is
+**not auto-generated** — if it is missing or unparseable, an `error!` log
+line is emitted and the built-in defaults take over so the plugin keeps
+running. Create the file by hand to override:
+
+```toml
+[colors]
+mspt_green_max = 25.0  # MSPT strictly below this value renders green
+mspt_gold_max  = 40.0  # ... below this renders gold; everything else renders red
+```
+
+Reloading is planned via `/tabtps reload` (Phase 5); restart the server in
+the meantime.
+
 ## Dependencies
 
 * [`pumpkin-plugin-api`](https://github.com/Pumpkin-MC/Pumpkin) (git, `master`) — provides the `Plugin` trait, `Context`, `Server`, scheduler, event handlers, command builder, boss bar, i18n, and `TextComponent`. Upstream API is unstable; expect to chase breaking changes when bumping.
+* [`serde`](https://docs.rs/serde/) + [`toml`](https://docs.rs/toml/) — `tabtps.toml` parsing.
 * [`tracing`](https://docs.rs/tracing/) — structured logging via the host server.
 
 ## License
