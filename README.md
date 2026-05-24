@@ -51,7 +51,7 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 | Commands   | `/tabtps toggle <tab\|actionbar\|bossbar>` | ✅     | ✅                  |
 | Commands   | `/tabtps reload`                         | ✅       | ✅                  |
 | Commands   | `/tickinfo` (alias `/mspt`)              | ✅       | ✅                  |
-| Commands   | `/memory` (`/mem`, `/ram`)               | ✅       | ⏸ sys.info.ram perm |
+| Commands   | `/memory` (`/mem`, `/ram`)               | ✅       | ✅                  |
 | Commands   | `/ping`, `/pingall`                      | ✅       | ✅                  |
 | Config     | `main.conf` (HOCON)                      | ✅       | ⚠️ TOML (subset)   |
 | Config     | `display-configs/` per-permission        | ✅       | ❌                  |
@@ -105,8 +105,8 @@ unblock later ones (modular display → config → commands → theming).
 - [x] `/tabtps reload` — re-reads `tabtps.toml` via `config::reload`.
 - [x] `/tickinfo` (alias `/mspt`) — TPS + MSPT rolling averages.
 - [x] `/ping`, `/ping <name>`, `/pingall`.
-- [ ] `/memory` / `/mem` / `/ram` — uses `server.get_sys_info()` (requires `sys.info.ram`, pending operator OK on that permission ask).
-- [x] Register `tabtps.command.{use,reload,toggle,tickinfo,ping,pingall}` permission nodes.
+- [x] `/memory` / `/mem` / `/ram` — uses `server.get_sys_info()`; declares `sys.info.ram` in `PluginMetadata::permissions`.
+- [x] Register `tabtps.command.{use,reload,toggle,tickinfo,ping,pingall,memory}` permission nodes.
 
 ### Phase 6 — Theming & i18n
 
