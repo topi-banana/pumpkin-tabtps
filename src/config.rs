@@ -9,6 +9,32 @@ use serde::{Deserialize, Serialize};
 /// Name of the config file inside the plugin's data folder.
 pub const CONFIG_FILE_NAME: &str = "tabtps.toml";
 
+/// Template written to disk on first run when no `tabtps.toml` exists. The
+/// values must mirror [`Config::default`] / [`ColorConfig::default`] /
+/// [`LayoutConfig::default`] — if you change a default, update this template
+/// too.
+const DEFAULT_CONFIG_TEMPLATE: &str = "\
+# TabTPS configuration — auto-generated on first run.
+# Edit then run `/tabtps reload` (planned) or restart the server to apply.
+
+# Tab list refresh cadence. 20 ticks ≈ 1 second.
+# Read at PlayerJoinEvent time, so existing players keep their previous
+# cadence until they rejoin. `0` is rejected.
+update_interval_ticks = 20
+
+[colors]
+# MSPT strictly below this value renders green.
+mspt_green_max = 25.0
+# ... below this renders gold; everything else renders red.
+mspt_gold_max = 40.0
+
+[layout]
+# Modules rendered into the tab list, in order. Empty lists hide the slot.
+# Available names: tps, mspt, player_count, ping
+header = [\"tps\", \"player_count\"]
+footer = [\"mspt\", \"ping\"]
+";
+
 /// Default tick interval (`20` ticks ≈ 1 second on a healthy server).
 pub const DEFAULT_UPDATE_INTERVAL_TICKS: u32 = 20;
 
@@ -94,11 +120,26 @@ pub fn load_from_disk(data_folder: &Path) -> Config {
                 tracing::error!(
                     path = %path.display(),
                     error = %err,
-                    "Failed to parse TabTPS config; falling back to defaults",
+                    "Failed to parse TabTPS config; falling back to defaults \
+                     (the file is preserved so you can fix it in place)",
                 );
                 Config::default()
             }
         },
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+            match fs::write(&path, DEFAULT_CONFIG_TEMPLATE) {
+                Ok(()) => tracing::info!(
+                    path = %path.display(),
+                    "Created default TabTPS config",
+                ),
+                Err(write_err) => tracing::error!(
+                    path = %path.display(),
+                    error = %write_err,
+                    "Could not write default TabTPS config; using in-memory defaults",
+                ),
+            }
+            Config::default()
+        }
         Err(err) => {
             tracing::error!(
                 path = %path.display(),
