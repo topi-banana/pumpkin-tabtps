@@ -43,7 +43,7 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 | Display    | Boss bar (with progress)                 | ✅       | ✅                  |
 | Module     | TPS (current)                            | ✅       | ✅                  |
 | Module     | MSPT (current)                           | ✅       | ✅                  |
-| Module     | TPS rolling averages (1 m / 5 m / 15 m)  | ✅       | ❌                  |
+| Module     | TPS rolling averages (1 m / 5 m / 15 m)  | ✅       | ✅                  |
 | Module     | Player count                             | ✅       | ✅                  |
 | Module     | Ping                                     | ✅       | ✅                  |
 | Module     | Memory                                   | ✅       | ❌                  |
@@ -95,8 +95,9 @@ unblock later ones (modular display → config → commands → theming).
 
 ### Phase 4 — Rolling averages
 
-- [ ] In-plugin TPS sampler (1 m / 5 m / 15 m windows) polling `get_tps` on a fixed cadence — upstream computes these itself, and Pumpkin's API only exposes a single current value.
-- [ ] Surface the rolling windows in the TPS / MSPT modules and the `/tickinfo` command.
+- [x] In-plugin TPS / MSPT sampler (1 m / 5 m / 15 m windows) polling `get_tps` and `get_mspt` at 1 Hz — upstream computes these itself, and Pumpkin's API only exposes a single current value.
+- [x] Surface the rolling windows in the TPS / MSPT modules (upstream-style `"19.95, 19.90, 19.85"` triple).
+- [ ] Surface them in `/tickinfo` (Phase 5).
 
 ### Phase 5 — Commands
 
@@ -129,6 +130,7 @@ pumpkin-tabtps
     ├── lib.rs          # Plugin entry point (Plugin trait impl + register_plugin!)
     ├── config.rs       # Config struct + load_from_disk + live RwLock snapshot
     ├── module.rs       # Module trait + TPS/MSPT/PlayerCount/Ping modules
+    ├── sampler.rs      # 1 Hz TPS / MSPT sampler + 1m / 5m / 15m rolling averages
     ├── toggle.rs       # In-memory per-player {tab, actionbar, bossbar} flags
     └── join_handler.rs # PlayerJoinEvent handler + tab / actionbar / bossbar tick task
 ```
