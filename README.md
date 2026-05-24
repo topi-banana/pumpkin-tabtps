@@ -39,7 +39,7 @@ Legend: ✅ done · ⚠️ partial · ❌ missing · ⏸ deferred
 | Category   | Feature                                  | Upstream | pumpkin-tabtps     |
 |------------|------------------------------------------|:--------:|:------------------:|
 | Display    | Tab list (header + footer)               | ✅       | ✅                  |
-| Display    | Action bar                               | ✅       | ❌                  |
+| Display    | Action bar                               | ✅       | ✅                  |
 | Display    | Boss bar (with progress)                 | ✅       | ❌                  |
 | Module     | TPS (current)                            | ✅       | ✅                  |
 | Module     | MSPT (current)                           | ✅       | ✅                  |
@@ -89,7 +89,7 @@ unblock later ones (modular display → config → commands → theming).
 
 ### Phase 3 — Additional display targets
 
-- [ ] **Action bar** display via `player.show_actionbar`.
+- [x] **Action bar** display via `player.show_actionbar` (`[actionbar]` table, default `["tps", "mspt"]`).
 - [ ] **Boss bar** display via the `boss-bar` resource — title + 0.0–1.0 progress mapped to TPS or MSPT, with color shifting on thresholds.
 - [ ] Per-player toggle state (in-memory first, persisted in Phase 5).
 
@@ -153,10 +153,11 @@ pumpkin-tabtps
 
 ## Configuration
 
-On load the plugin reads `<plugin-data-folder>/tabtps.toml`. The file is
-**not auto-generated** — if it is missing or unparseable, an `error!` log
-line is emitted and the built-in defaults take over so the plugin keeps
-running. Create the file by hand to override:
+On load the plugin reads `<plugin-data-folder>/tabtps.toml`. If the file
+is missing the plugin writes a commented template to disk on first run
+(using `fs.write.data`) so there is something to edit. Parse errors do
+**not** trigger a rewrite — the broken file is preserved so you can fix
+it in place — and the built-in defaults take over until you do.
 
 ```toml
 update_interval_ticks = 20   # tab list refresh cadence; 20 ticks ≈ 1 second
@@ -170,15 +171,21 @@ mspt_gold_max  = 40.0  # ... below this renders gold; everything else renders re
 # corresponding slot. Available names: tps, mspt, player_count, ping.
 header = ["tps", "player_count"]
 footer = ["mspt", "ping"]
+
+[actionbar]
+# Set `enabled = false` to suppress the action bar entirely; an empty
+# `modules` list does the same.
+enabled = true
+modules = ["tps", "mspt"]
 ```
 
 `update_interval_ticks` is read at `PlayerJoinEvent` time, so existing
 players keep their previous cadence until they rejoin. `0` is rejected
 (it would spin the scheduler) and replaced with the default.
 
-Unknown module names in `[layout]` are warned about at load time and
-skipped — the tab list keeps rendering with whatever names did
-resolve.
+Unknown module names in `[layout]` or `[actionbar]` are warned about at
+load time and skipped — the tab list / action bar keeps rendering with
+whatever names did resolve.
 
 Reloading is planned via `/tabtps reload` (Phase 5); restart the server in
 the meantime.
