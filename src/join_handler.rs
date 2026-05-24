@@ -33,6 +33,9 @@ impl EventHandler<PlayerJoinEvent> for TabtpsJoinHandler {
                     render_header(&server, &player),
                     render_footer(&server, &player),
                 );
+                if let Some(text) = render_actionbar(&server, &player) {
+                    player.show_actionbar(text);
+                }
             } else if let Some(id) = task_slot_clone.lock().unwrap().take() {
                 tracing::info!("Player gone, cancelling tab task id={id}");
                 scheduler::cancel_task(id);
@@ -64,4 +67,21 @@ fn render_slot(
         .filter_map(|name| module_by_name(name))
         .collect();
     compose(&modules, server, player)
+}
+
+fn render_actionbar(server: &Server, player: &Player) -> Option<TextComponent> {
+    let cfg = config::config().read().unwrap();
+    if !cfg.actionbar.enabled || cfg.actionbar.modules.is_empty() {
+        return None;
+    }
+    let modules: Vec<&'static dyn Module> = cfg
+        .actionbar
+        .modules
+        .iter()
+        .filter_map(|name| module_by_name(name))
+        .collect();
+    if modules.is_empty() {
+        return None;
+    }
+    Some(compose(&modules, server, player))
 }

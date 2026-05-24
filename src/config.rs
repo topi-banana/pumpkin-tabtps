@@ -11,8 +11,8 @@ pub const CONFIG_FILE_NAME: &str = "tabtps.toml";
 
 /// Template written to disk on first run when no `tabtps.toml` exists. The
 /// values must mirror [`Config::default`] / [`ColorConfig::default`] /
-/// [`LayoutConfig::default`] — if you change a default, update this template
-/// too.
+/// [`LayoutConfig::default`] / [`ActionbarConfig::default`] — if you change a
+/// default, update this template too.
 const DEFAULT_CONFIG_TEMPLATE: &str = "\
 # TabTPS configuration — auto-generated on first run.
 # Edit then run `/tabtps reload` (planned) or restart the server to apply.
@@ -33,6 +33,11 @@ mspt_gold_max = 40.0
 # Available names: tps, mspt, player_count, ping
 header = [\"tps\", \"player_count\"]
 footer = [\"mspt\", \"ping\"]
+
+[actionbar]
+# Set `enabled = false` to suppress the action bar entirely.
+enabled = true
+modules = [\"tps\", \"mspt\"]
 ";
 
 /// Default tick interval (`20` ticks ≈ 1 second on a healthy server).
@@ -55,6 +60,8 @@ pub struct Config {
     pub colors: ColorConfig,
 
     pub layout: LayoutConfig,
+
+    pub actionbar: ActionbarConfig,
 }
 
 impl Default for Config {
@@ -63,6 +70,26 @@ impl Default for Config {
             update_interval_ticks: DEFAULT_UPDATE_INTERVAL_TICKS,
             colors: ColorConfig::default(),
             layout: LayoutConfig::default(),
+            actionbar: ActionbarConfig::default(),
+        }
+    }
+}
+
+/// Action bar display options. The action bar shares the tab list refresh
+/// cadence (driven by [`Config::update_interval_ticks`]); set `enabled = false`
+/// to suppress it entirely.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct ActionbarConfig {
+    pub enabled: bool,
+    pub modules: Vec<String>,
+}
+
+impl Default for ActionbarConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            modules: vec!["tps".into(), "mspt".into()],
         }
     }
 }
@@ -163,6 +190,7 @@ fn validate(cfg: &mut Config) {
     }
     drop_unknown_modules(&mut cfg.layout.header, "header");
     drop_unknown_modules(&mut cfg.layout.footer, "footer");
+    drop_unknown_modules(&mut cfg.actionbar.modules, "actionbar");
 }
 
 fn drop_unknown_modules(names: &mut Vec<String>, slot: &str) {
