@@ -9,14 +9,33 @@ use serde::{Deserialize, Serialize};
 /// Name of the config file inside the plugin's data folder.
 pub const CONFIG_FILE_NAME: &str = "tabtps.toml";
 
+/// Default tick interval (`20` ticks ≈ 1 second on a healthy server).
+pub const DEFAULT_UPDATE_INTERVAL_TICKS: u32 = 20;
+
 /// Plugin-wide configuration loaded from `tabtps.toml`. Reloadable via the
 /// (planned) `/tabtps reload` command — the live values live in a shared
 /// `RwLock` so reads from per-tick tasks see the latest snapshot without
 /// having to be rescheduled.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
+    /// Tick cadence for the tab list refresh task. Read by [`join_handler`]
+    /// each time a player joins; changes only affect players who rejoin (or,
+    /// in the future, are picked up by `/tabtps reload`).
+    ///
+    /// [`join_handler`]: crate::join_handler
+    pub update_interval_ticks: u32,
+
     pub colors: ColorConfig,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            update_interval_ticks: DEFAULT_UPDATE_INTERVAL_TICKS,
+            colors: ColorConfig::default(),
+        }
+    }
 }
 
 /// MSPT → tab list color thresholds. A reading is **green** when strictly
@@ -45,7 +64,8 @@ pub fn load_from_disk(data_folder: &Path) -> Config {
     let path = data_folder.join(CONFIG_FILE_NAME);
     match fs::read_to_string(&path) {
         Ok(contents) => match toml::from_str::<Config>(&contents) {
-            Ok(cfg) => {
+            Ok(mut cfg) => {
+                validate(&mut cfg);
                 tracing::info!(path = %path.display(), "Loaded TabTPS config");
                 cfg
             }
@@ -67,6 +87,24 @@ pub fn load_from_disk(data_folder: &Path) -> Config {
             Config::default()
         }
     }
+}
+
+/// Apply sanity checks to a freshly-parsed config, replacing nonsense values
+/// with their defaults. Each adjustment is logged so the operator notices.
+fn validate(cfg: &mut Config) {
+    if cfg.update_interval_ticks == 0 {
+        tracing::warn!(
+            "tabtps.toml: update_interval_ticks = 0 would spam the scheduler; \
+             resetting to default ({DEFAULT_UPDATE_INTERVAL_TICKS})",
+        );
+        cfg.update_interval_ticks = DEFAULT_UPDATE_INTERVAL_TICKS;
+    }
+}
+
+/// Current update interval as ticks, suitable for passing to
+/// [`pumpkin_plugin_api::scheduler::schedule_repeating_task`].
+pub fn current_update_interval_ticks() -> u64 {
+    u64::from(config().read().unwrap().update_interval_ticks)
 }
 
 static CONFIG: OnceLock<Arc<RwLock<Config>>> = OnceLock::new();
