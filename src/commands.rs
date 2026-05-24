@@ -22,6 +22,7 @@ pub const PERM_TOGGLE: &str = "tabtps.command.toggle";
 pub const PERM_TICKINFO: &str = "tabtps.command.tickinfo";
 pub const PERM_PING: &str = "tabtps.command.ping";
 pub const PERM_PINGALL: &str = "tabtps.command.pingall";
+pub const PERM_MEMORY: &str = "tabtps.command.memory";
 
 /// Builds the full `/tabtps` command tree. The caller is responsible for
 /// registering the [`PERM_USE`] / [`PERM_RELOAD`] / [`PERM_TOGGLE`] permission
@@ -65,6 +66,16 @@ pub fn build_ping() -> Command {
 /// `/pingall` — comma-separated list of every online player's ping.
 pub fn build_pingall() -> Command {
     Command::new(&["pingall".into()], "Show every online player's ping").execute(PingAllHandler)
+}
+
+/// `/memory` (aliases `/mem`, `/ram`) — host RAM use from
+/// `server.get_sys_info`. Requires the `sys.info.ram` host permission.
+pub fn build_memory() -> Command {
+    Command::new(
+        &["memory".into(), "mem".into(), "ram".into()],
+        "Show server memory usage",
+    )
+    .execute(MemoryHandler)
 }
 
 struct ReloadHandler;
@@ -255,6 +266,44 @@ impl CommandHandler for PingAllHandler {
         sender.send_message(coloured(&body, NamedColor::Gold));
         Ok(0)
     }
+}
+
+struct MemoryHandler;
+
+impl CommandHandler for MemoryHandler {
+    fn handle(
+        &self,
+        sender: CommandSender,
+        server: Server,
+        _args: ConsumedArgs,
+    ) -> Result<i32, CommandError> {
+        if !sender.has_permission(&server, PERM_MEMORY) {
+            return Err(CommandError::PermissionDenied);
+        }
+        let info = server.get_sys_info();
+        let (Some(used), Some(total)) = (info.used_memory, info.total_memory) else {
+            return Err(CommandError::CommandFailed(coloured(
+                "Server memory info unavailable (sys.info.ram permission may be missing)",
+                NamedColor::Red,
+            )));
+        };
+        let used_gib = bytes_to_gib(used);
+        let total_gib = bytes_to_gib(total);
+        let percent = if total > 0 {
+            (used as f64 / total as f64) * 100.0
+        } else {
+            0.0
+        };
+        sender.send_message(coloured(
+            &format!("Memory: {used_gib:.2} / {total_gib:.2} GiB ({percent:.0}%)"),
+            NamedColor::Gold,
+        ));
+        Ok(0)
+    }
+}
+
+fn bytes_to_gib(bytes: u64) -> f64 {
+    bytes as f64 / (1024.0 * 1024.0 * 1024.0)
 }
 
 fn format_averages(avg: Averages) -> String {

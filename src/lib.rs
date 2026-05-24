@@ -36,6 +36,7 @@ impl Plugin for TabtpsPlugin {
             permissions: vec![
                 permissions::FS_READ_DATA.to_string(),
                 permissions::FS_WRITE_DATA.to_string(),
+                permissions::SYS_INFO_RAM.to_string(),
             ],
         }
     }
@@ -56,6 +57,7 @@ impl Plugin for TabtpsPlugin {
         context.register_command(commands::build_tickinfo(), commands::PERM_TICKINFO);
         context.register_command(commands::build_ping(), commands::PERM_PING);
         context.register_command(commands::build_pingall(), commands::PERM_PINGALL);
+        context.register_command(commands::build_memory(), commands::PERM_MEMORY);
 
         context.register_event_handler(TabtpsJoinHandler, EventPriority::Normal, true)?;
 
@@ -104,6 +106,12 @@ fn register_permissions(context: &Context) -> pumpkin_plugin_api::Result<()> {
         Permission {
             node: commands::PERM_PINGALL.into(),
             description: "Allows /pingall".into(),
+            default: PermissionDefault::Allow,
+            children: vec![],
+        },
+        Permission {
+            node: commands::PERM_MEMORY.into(),
+            description: "Allows /memory (/mem, /ram)".into(),
             default: PermissionDefault::Allow,
             children: vec![],
         },
