@@ -91,7 +91,7 @@ unblock later ones (modular display → config → commands → theming).
 
 - [x] **Action bar** display via `player.show_actionbar` (`[actionbar]` table, default `["tps", "mspt"]`).
 - [x] **Boss bar** display via the `boss-bar` resource (`[bossbar]` table, default `["tps", "mspt", "ping"]`). MSPT-driven progress + `notches_20`; colour from `[colors]` thresholds.
-- [ ] Per-player toggle state (in-memory first, persisted in Phase 5).
+- [x] Per-player toggle state (in-memory; `/tabtps toggle` command + persistence land in Phase 5).
 
 ### Phase 4 — Rolling averages
 
@@ -129,7 +129,8 @@ pumpkin-tabtps
     ├── lib.rs          # Plugin entry point (Plugin trait impl + register_plugin!)
     ├── config.rs       # Config struct + load_from_disk + live RwLock snapshot
     ├── module.rs       # Module trait + TPS/MSPT/PlayerCount/Ping modules
-    └── join_handler.rs # PlayerJoinEvent handler + tab header/footer update task
+    ├── toggle.rs       # In-memory per-player {tab, actionbar, bossbar} flags
+    └── join_handler.rs # PlayerJoinEvent handler + tab / actionbar / bossbar tick task
 ```
 
 ## Usage
