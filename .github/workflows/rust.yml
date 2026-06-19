@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Add wasm32-wasip2 target
       run: rustup target add wasm32-wasip2
@@ -36,7 +36,7 @@ jobs:
   machete:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Install cargo-machete
       uses: taiki-e/install-action@v2
@@ -49,7 +49,7 @@ jobs:
   typos:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Install typos
       uses: taiki-e/install-action@v2
