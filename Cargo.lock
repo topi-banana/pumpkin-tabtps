@@ -203,7 +203,7 @@ dependencies = [
 [[package]]
 name = "pumpkin-plugin-api"
 version = "0.1.0"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin#fb3b146fdd278261d536fccea49cd759e80706ac"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin#1196d9226fb684c14735ea40bef5107cf383c421"
 dependencies = [
  "postcard",
  "serde_json",
